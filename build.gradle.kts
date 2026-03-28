@@ -8,4 +8,8 @@ plugins {
 
 subprojects {
     apply(plugin = "com.ncorti.ktfmt.gradle")
+
+    configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
+        kotlinLangStyle()
+    }
 }
