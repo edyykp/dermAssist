@@ -9,6 +9,18 @@ plugins {
     alias(libs.plugins.ksp) apply false
 }
 
+tasks.register<Copy>("installGitHooks") {
+    from(file("${rootProject.rootDir}/gradle/hooks"))
+    into(file("${rootProject.rootDir}/.git/hooks"))
+    fileMode = 0x1ED // equivalent to 755 (rwxr-xr-x)
+}
+
+afterEvaluate {
+    tasks.named("prepareKotlinBuildScriptModel") {
+        dependsOn("installGitHooks")
+    }
+}
+
 subprojects {
     apply(plugin = "com.ncorti.ktfmt.gradle")
 
