@@ -11,7 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme =
-    darkColorScheme(primary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Purple80, secondary = _root_ide_package_.com.ehealth.dermassist.ui.theme.PurpleGrey80, tertiary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Pink80)
+    darkColorScheme(
+        primary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Purple80,
+        secondary = _root_ide_package_.com.ehealth.dermassist.ui.theme.PurpleGrey80,
+        tertiary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Pink80,
+    )
 
 private val LightColorScheme =
     lightColorScheme(
@@ -48,5 +52,9 @@ fun DermAssistTheme(
             else -> _root_ide_package_.com.ehealth.dermassist.ui.theme.LightColorScheme
         }
 
-    MaterialTheme(colorScheme = colorScheme, typography = _root_ide_package_.com.ehealth.dermassist.ui.theme.Typography, content = content)
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = _root_ide_package_.com.ehealth.dermassist.ui.theme.Typography,
+        content = content,
+    )
 }

@@ -6,11 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.ehealth.dermassist.ui.navigation.AppNavGraph
 import com.ehealth.dermassist.ui.theme.DermAssistTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : androidx.activity.ComponentActivity() {
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { _root_ide_package_.com.ehealth.dermassist.ui.theme.DermAssistTheme { _root_ide_package_.com.ehealth.dermassist.ui.navigation.AppNavGraph() } }
+        setContent { DermAssistTheme { AppNavGraph() } }
     }
 }

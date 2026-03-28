@@ -29,7 +29,13 @@ import com.ehealth.dermassist.ui.navigation.Screen
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val items = listOf(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home, _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report, _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History, _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile)
+    val items =
+        listOf(
+            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home,
+            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report,
+            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History,
+            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile,
+        )
 
     Scaffold(
         bottomBar = {
@@ -40,11 +46,14 @@ fun MainScreen() {
                     NavigationBarItem(
                         icon = {
                             when (screen) {
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home -> Icon(Icons.Filled.Home, contentDescription = null)
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report -> Icon(Icons.Filled.Info, contentDescription = null)
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History -> Icon(Icons.Filled.List, contentDescription = null)
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile ->
-                                    Icon(Icons.Filled.Person, contentDescription = null)
+                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
+                                    .Home -> Icon(Icons.Filled.Home, contentDescription = null)
+                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
+                                    .Report -> Icon(Icons.Filled.Info, contentDescription = null)
+                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
+                                    .History -> Icon(Icons.Filled.List, contentDescription = null)
+                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
+                                    .Profile -> Icon(Icons.Filled.Person, contentDescription = null)
                                 else -> Icon(Icons.Filled.Home, contentDescription = null)
                             }
                         },
@@ -67,13 +76,28 @@ fun MainScreen() {
     ) { innerPadding ->
         NavHost(
             navController,
-            startDestination = _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home.route,
+            startDestination =
+                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home.route,
             Modifier.padding(innerPadding),
         ) {
-            composable(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home.route) { _root_ide_package_.com.ehealth.dermassist.ui.features.home.HomeScreen() }
-            composable(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report.route) { _root_ide_package_.com.ehealth.dermassist.ui.features.report.ReportScreen() }
-            composable(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History.route) { _root_ide_package_.com.ehealth.dermassist.ui.features.history.HistoryScreen() }
-            composable(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile.route) { _root_ide_package_.com.ehealth.dermassist.ui.features.profile.ProfileScreen() }
+            composable(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home.route) {
+                _root_ide_package_.com.ehealth.dermassist.ui.features.home.HomeScreen()
+            }
+            composable(
+                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report.route
+            ) {
+                _root_ide_package_.com.ehealth.dermassist.ui.features.report.ReportScreen()
+            }
+            composable(
+                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History.route
+            ) {
+                _root_ide_package_.com.ehealth.dermassist.ui.features.history.HistoryScreen()
+            }
+            composable(
+                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile.route
+            ) {
+                _root_ide_package_.com.ehealth.dermassist.ui.features.profile.ProfileScreen()
+            }
         }
     }
 }

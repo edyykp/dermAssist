@@ -23,18 +23,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.R
-import com.ehealth.dermassist.ui.features.auth.AuthViewModel
 import com.ehealth.dermassist.ui.theme.*
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SplashScreen(
-    authViewModel: AuthViewModel,
-    splashViewModel: SplashScreenViewModel = viewModel(),
+    splashViewModel: SplashScreenViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
-    onSignUpLogin: () -> Unit
+    onSignUpLogin: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -141,9 +139,7 @@ fun SplashScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             OutlinedButton(
-                onClick = {
-                    splashViewModel.handleGoogleSignIn(context, authViewModel, onNavigateToHome)
-                },
+                onClick = { splashViewModel.handleGoogleSignIn(context, onNavigateToHome) },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(28.dp),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, BorderColor),
