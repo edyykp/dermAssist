@@ -1,6 +1,11 @@
 package com.example.dermassist.ui.features.main
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -20,21 +25,11 @@ import com.example.dermassist.ui.features.home.HomeScreen
 import com.example.dermassist.ui.features.profile.ProfileScreen
 import com.example.dermassist.ui.features.report.ReportScreen
 import com.example.dermassist.ui.navigation.Screen
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.List
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val items = listOf(
-        Screen.Home,
-        Screen.Report,
-        Screen.History,
-        Screen.Profile
-    )
+    val items = listOf(Screen.Home, Screen.Report, Screen.History, Screen.Profile)
 
     Scaffold(
         bottomBar = {
@@ -43,17 +38,19 @@ fun MainScreen() {
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
                     NavigationBarItem(
-                        icon = { 
-                            when(screen) {
+                        icon = {
+                            when (screen) {
                                 Screen.Home -> Icon(Icons.Filled.Home, contentDescription = null)
                                 Screen.Report -> Icon(Icons.Filled.Info, contentDescription = null)
                                 Screen.History -> Icon(Icons.Filled.List, contentDescription = null)
-                                Screen.Profile -> Icon(Icons.Filled.Person, contentDescription = null)
+                                Screen.Profile ->
+                                    Icon(Icons.Filled.Person, contentDescription = null)
                                 else -> Icon(Icons.Filled.Home, contentDescription = null)
                             }
                         },
                         label = { Text(screen.route.replaceFirstChar { it.uppercase() }) },
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        selected =
+                            currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -62,13 +59,17 @@ fun MainScreen() {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
                     )
                 }
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(innerPadding)) {
+        NavHost(
+            navController,
+            startDestination = Screen.Home.route,
+            Modifier.padding(innerPadding),
+        ) {
             composable(Screen.Home.route) { HomeScreen() }
             composable(Screen.Report.route) { ReportScreen() }
             composable(Screen.History.route) { HistoryScreen() }

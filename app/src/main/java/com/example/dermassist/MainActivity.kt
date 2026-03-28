@@ -11,10 +11,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            DermAssistTheme {
-                AppNavGraph()
-            }
-        }
+        setContent { DermAssistTheme { AppNavGraph() } }
     }
 }
