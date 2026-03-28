@@ -1,0 +1,47 @@
+# Built artifacts
+/build
+.gradle
+/app/build
+
+# IDE - IntelliJ / Android Studio
+.idea
+*.iml
+*.iws
+*.ipr
+.navigation/
+
+# Android Studio captures folder
+captures/
+
+# NDK
+.externalNativeBuild
+.cxx
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
+CMakeLists.txt.user
+Makefile
+install_manifest.txt
+TargetDirectories.txt
+
+# Local configuration file (for local sdk/ndk paths)
+local.properties
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services file
+google-services.json
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
