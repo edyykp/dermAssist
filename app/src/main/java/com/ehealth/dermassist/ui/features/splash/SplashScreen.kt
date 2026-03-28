@@ -15,20 +15,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ehealth.dermassist.R
+import com.ehealth.dermassist.ui.features.auth.AuthViewModel
 import com.ehealth.dermassist.ui.theme.*
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
+fun SplashScreen(
+    authViewModel: AuthViewModel,
+    splashViewModel: SplashScreenViewModel = viewModel(),
+    onNavigateToHome: () -> Unit,
+    onSignUpLogin: () -> Unit
+) {
+    val context = LocalContext.current
+
     Column(
         modifier =
             Modifier.fillMaxSize()
@@ -37,9 +46,9 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                         Brush.verticalGradient(
                             colors =
                                 listOf(
-                                    _root_ide_package_.com.ehealth.dermassist.ui.theme.BackgroundGradientStart,
-                                    _root_ide_package_.com.ehealth.dermassist.ui.theme.BackgroundGradientMid,
-                                    _root_ide_package_.com.ehealth.dermassist.ui.theme.BackgroundWhite,
+                                    BackgroundGradientStart,
+                                    BackgroundGradientMid,
+                                    BackgroundWhite,
                                 )
                         )
                 )
@@ -63,10 +72,7 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                     Modifier.size(72.dp)
                         .clip(RoundedCornerShape(20.dp))
                         .background(
-                            brush = Brush.linearGradient(colors = listOf(
-                                _root_ide_package_.com.ehealth.dermassist.ui.theme.PrimaryGreen,
-                                _root_ide_package_.com.ehealth.dermassist.ui.theme.PrimaryBlue
-                            ))
+                            brush = Brush.linearGradient(colors = listOf(PrimaryGreen, PrimaryBlue))
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -83,21 +89,21 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
             Text(
                 text = "DermAssist",
                 style = MaterialTheme.typography.displayLarge,
-                color = _root_ide_package_.com.ehealth.dermassist.ui.theme.DarkText,
+                color = DarkText,
             )
 
             Text(
                 text = "AI SKIN ANALYSIS",
                 style = MaterialTheme.typography.headlineMedium,
-                color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PrimaryGreen,
+                color = PrimaryGreen,
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "AI-powered dermatological analysis",
+                text = "Your skin deserves expert attention, every day.",
                 style = MaterialTheme.typography.displayMedium,
-                color = _root_ide_package_.com.ehealth.dermassist.ui.theme.DarkText,
+                color = DarkText,
                 textAlign = TextAlign.Center,
             )
 
@@ -107,7 +113,7 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                 text =
                     "Get instant AI-powered skin analysis, personalized recommendations, and track your skin health over time.",
                 style = MaterialTheme.typography.bodyLarge,
-                color = _root_ide_package_.com.ehealth.dermassist.ui.theme.BodyText,
+                color = BodyText,
                 textAlign = TextAlign.Center,
             )
 
@@ -120,18 +126,9 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 maxItemsInEachRow = 2,
             ) {
-                _root_ide_package_.com.ehealth.dermassist.ui.features.splash.PillItem(
-                    color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PillGreen,
-                    text = "AI-powered scan"
-                )
-                _root_ide_package_.com.ehealth.dermassist.ui.features.splash.PillItem(
-                    color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PillBlue,
-                    text = "Condition detection"
-                )
-                _root_ide_package_.com.ehealth.dermassist.ui.features.splash.PillItem(
-                    color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PillPurple,
-                    text = "Progress tracking"
-                )
+                PillItem(color = PillGreen, text = "AI-powered scan")
+                PillItem(color = PillBlue, text = "Condition detection")
+                PillItem(color = PillPurple, text = "Progress tracking")
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -144,12 +141,12 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             OutlinedButton(
-                onClick = onContinueWithGoogle,
+                onClick = {
+                    splashViewModel.handleGoogleSignIn(context, authViewModel, onNavigateToHome)
+                },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(28.dp),
-                border = androidx.compose.foundation.BorderStroke(1.5.dp,
-                    _root_ide_package_.com.ehealth.dermassist.ui.theme.BorderColor
-                ),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, BorderColor),
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -162,7 +159,7 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Continue with Google",
-                        color = _root_ide_package_.com.ehealth.dermassist.ui.theme.DarkText,
+                        color = DarkText,
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
@@ -172,28 +169,26 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = _root_ide_package_.com.ehealth.dermassist.ui.theme.BorderColor)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
                 Text(
                     text = "or",
                     modifier = Modifier.padding(horizontal = 12.dp),
                     style = MaterialTheme.typography.labelMedium,
-                    color = _root_ide_package_.com.ehealth.dermassist.ui.theme.BodyText,
+                    color = BodyText,
                 )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = _root_ide_package_.com.ehealth.dermassist.ui.theme.BorderColor)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = BorderColor)
             }
 
             Button(
                 onClick = onSignUpLogin,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = _root_ide_package_.com.ehealth.dermassist.ui.theme.SecondaryGreen),
-                border = androidx.compose.foundation.BorderStroke(1.5.dp,
-                    _root_ide_package_.com.ehealth.dermassist.ui.theme.SecondaryGreenBorder
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = SecondaryGreen),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, SecondaryGreenBorder),
             ) {
                 Text(
                     text = "Sign Up / Log In",
-                    color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PrimaryGreen,
+                    color = PrimaryGreen,
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
@@ -206,20 +201,20 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
                     buildAnnotatedString {
                         append("By continuing, you agree to our ")
                         withStyle(
-                            style = SpanStyle(color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PrimaryGreen, fontWeight = FontWeight.Medium)
+                            style = SpanStyle(color = PrimaryGreen, fontWeight = FontWeight.Medium)
                         ) {
                             append("Terms of Service")
                         }
                         append(" and ")
                         withStyle(
-                            style = SpanStyle(color = _root_ide_package_.com.ehealth.dermassist.ui.theme.PrimaryGreen, fontWeight = FontWeight.Medium)
+                            style = SpanStyle(color = PrimaryGreen, fontWeight = FontWeight.Medium)
                         ) {
                             append("Privacy Policy")
                         }
                         append(".")
                     },
                 style = MaterialTheme.typography.labelSmall,
-                color = _root_ide_package_.com.ehealth.dermassist.ui.theme.BodyText,
+                color = BodyText,
                 textAlign = TextAlign.Center,
             )
         }
@@ -230,9 +225,7 @@ fun SplashScreen(onContinueWithGoogle: () -> Unit, onSignUpLogin: () -> Unit) {
 fun PillItem(color: Color, text: String) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        border = androidx.compose.foundation.BorderStroke(1.5.dp,
-            _root_ide_package_.com.ehealth.dermassist.ui.theme.BorderColor
-        ),
+        border = androidx.compose.foundation.BorderStroke(1.5.dp, BorderColor),
         color = Color.White,
     ) {
         Row(
@@ -241,17 +234,7 @@ fun PillItem(color: Color, text: String) {
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             Box(modifier = Modifier.size(7.dp).background(color, CircleShape))
-            Text(text = text, style = MaterialTheme.typography.labelMedium, color = _root_ide_package_.com.ehealth.dermassist.ui.theme.BodyText)
+            Text(text = text, style = MaterialTheme.typography.labelMedium, color = BodyText)
         }
-    }
-}
-
-@Composable
-@Preview
-private fun SplashScreenPreview() {
-    _root_ide_package_.com.ehealth.dermassist.ui.theme.DermAssistTheme {
-        _root_ide_package_.com.ehealth.dermassist.ui.features.splash.SplashScreen(
-            onContinueWithGoogle = {},
-            onSignUpLogin = {})
     }
 }
