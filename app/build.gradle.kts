@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.dermassist"
+    namespace = "com.ehealth.dermassist"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.dermassist"
+        applicationId = "com.ehealth.dermassist"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
