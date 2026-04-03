@@ -16,6 +16,10 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,10 +30,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.ui.components.ConfirmExitDialog
 import com.ehealth.dermassist.ui.theme.*
 
 @Composable
 fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    if (showLogoutDialog) {
+        ConfirmExitDialog(
+            title = "Log Out",
+            message = "Are you sure you want to log out of your account?",
+            onConfirm = {
+                viewModel.logout()
+                showLogoutDialog = false
+            },
+            onDismiss = { showLogoutDialog = false },
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         // Content
         Column(
@@ -181,7 +200,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                     labelColor = MaterialTheme.colorScheme.error,
                     isLast = true,
                     showArrow = false,
-                    onClick = { viewModel.logout() },
+                    onClick = { showLogoutDialog = true },
                 )
             }
 
