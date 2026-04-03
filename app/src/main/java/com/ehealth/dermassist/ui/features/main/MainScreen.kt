@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -30,10 +31,6 @@ import com.ehealth.dermassist.ui.features.home.HomeScreen
 import com.ehealth.dermassist.ui.features.profile.ProfileScreen
 import com.ehealth.dermassist.ui.features.report.ReportScreen
 import com.ehealth.dermassist.ui.navigation.Screen
-import com.ehealth.dermassist.ui.theme.BackgroundWhite
-import com.ehealth.dermassist.ui.theme.BodyText
-import com.ehealth.dermassist.ui.theme.IconBgGreen
-import com.ehealth.dermassist.ui.theme.PrimaryGreen
 
 @Composable
 fun MainScreen() {
@@ -42,7 +39,7 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar(containerColor = BackgroundWhite) {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
@@ -94,11 +91,11 @@ fun MainScreen() {
                         },
                         colors =
                             NavigationBarItemDefaults.colors(
-                                indicatorColor = IconBgGreen,
-                                selectedIconColor = PrimaryGreen,
-                                selectedTextColor = PrimaryGreen,
-                                unselectedIconColor = BodyText,
-                                unselectedTextColor = BodyText,
+                                indicatorColor = MaterialTheme.colorScheme.inversePrimary,
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                     )
                 }

@@ -31,7 +31,7 @@ import com.ehealth.dermassist.ui.theme.*
 
 @Composable
 fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
-    Column(modifier = Modifier.fillMaxSize().background(SurfaceLight)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         // Content
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             // Header
@@ -39,7 +39,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                 Text(
                     text = "Profile",
                     style = MaterialTheme.typography.displayMedium,
-                    color = DarkText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
                 )
             }
@@ -53,10 +53,14 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                         .background(
                             brush =
                                 Brush.linearGradient(
-                                    colors = listOf(BackgroundGradientStart, Color(0xFFE4EEF9))
+                                    colors =
+                                        listOf(
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                            Color(0xFFE4EEF9),
+                                        )
                                 )
                         )
-                        .padding(20.dp)
+                        .padding(20.dp),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -70,15 +74,19 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                                 .background(
                                     brush =
                                         Brush.linearGradient(
-                                            colors = listOf(PrimaryGreen, PrimaryBlue)
+                                            colors =
+                                                listOf(
+                                                    MaterialTheme.colorScheme.primary,
+                                                    MaterialTheme.colorScheme.secondary,
+                                                )
                                         )
                                 )
-                                .border(3.dp, Color.White, CircleShape),
+                                .border(3.dp, MaterialTheme.colorScheme.onPrimary, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = "SJ",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                         )
@@ -92,12 +100,12 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                             text = "Sarah Johnson",
                             style = MaterialTheme.typography.labelLarge,
                             fontSize = 18.sp,
-                            color = DarkText,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = "Age 28 · Joined Jan 2026",
                             style = MaterialTheme.typography.bodySmall,
-                            color = BodyText,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 13.sp,
                         )
                     }
@@ -107,14 +115,14 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                 Surface(
                     modifier = Modifier.align(Alignment.TopEnd),
                     shape = RoundedCornerShape(12.dp),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                 ) {
                     Text(
                         text = "Edit",
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        color = PrimaryGreen,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                     )
                 }
@@ -132,14 +140,14 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
             SectionCard(title = "Account") {
                 ProfileMenuItem(
                     icon = Icons.Outlined.Person,
-                    iconContainerColor = IconBgGreen,
-                    iconColor = PrimaryGreen,
+                    iconContainerColor = MaterialTheme.colorScheme.inversePrimary,
+                    iconColor = MaterialTheme.colorScheme.primary,
                     label = "Edit Profile",
                 )
                 ProfileMenuItem(
-                    icon = Icons.Outlined.Lock, // Placeholder for Privacy
-                    iconContainerColor = IconBgPurple,
-                    iconColor = PillPurple,
+                    icon = Icons.Outlined.Lock,
+                    iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    iconColor = MaterialTheme.colorScheme.tertiary,
                     label = "Privacy & Data",
                 )
             }
@@ -147,19 +155,19 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
             // Data & Account Section
             SectionCard(title = "Data & Account") {
                 ProfileMenuItem(
-                    icon = Icons.Outlined.Delete, // Placeholder for Clear Data
-                    iconContainerColor = IconBgRed,
-                    iconColor = ErrorRed,
+                    icon = Icons.Outlined.Delete,
+                    iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                    iconColor = MaterialTheme.colorScheme.error,
                     label = "Clear All Data",
-                    labelColor = ErrorRed,
+                    labelColor = MaterialTheme.colorScheme.error,
                     showArrow = false,
                 )
                 ProfileMenuItem(
-                    icon = Icons.AutoMirrored.Outlined.ExitToApp, // Placeholder for Logout
-                    iconContainerColor = IconBgRed,
-                    iconColor = ErrorRed,
+                    icon = Icons.AutoMirrored.Outlined.ExitToApp,
+                    iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                    iconColor = MaterialTheme.colorScheme.error,
                     label = "Log Out",
-                    labelColor = ErrorRed,
+                    labelColor = MaterialTheme.colorScheme.error,
                     isLast = true,
                     showArrow = false,
                     onClick = { viewModel.logout() },
@@ -176,7 +184,7 @@ fun StatCard(modifier: Modifier = Modifier, number: String, label: String) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onPrimary,
         shadowElevation = 1.dp,
     ) {
         Column(
@@ -187,9 +195,14 @@ fun StatCard(modifier: Modifier = Modifier, number: String, label: String) {
                 text = number,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = PrimaryGreen,
+                color = MaterialTheme.colorScheme.primary,
             )
-            Text(text = label, fontSize = 11.sp, color = BodyText, fontWeight = FontWeight.Medium)
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+            )
         }
     }
 }
@@ -201,8 +214,12 @@ fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
             Modifier.fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color.White)
-                .border(0.5.dp, Color.LightGray.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.onPrimary)
+                .border(
+                    0.5.dp,
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                    RoundedCornerShape(20.dp),
+                ),
     ) {
         Text(
             text = title.uppercase(),
@@ -210,7 +227,7 @@ fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,
-            color = BodyText,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         content()
     }
@@ -222,7 +239,7 @@ fun ProfileMenuItem(
     iconContainerColor: Color,
     iconColor: Color,
     label: String,
-    labelColor: Color = DarkText,
+    labelColor: Color = MaterialTheme.colorScheme.onSurface,
     isLast: Boolean = false,
     showArrow: Boolean = true,
     onClick: () -> Unit = {},
@@ -262,7 +279,7 @@ fun ProfileMenuItem(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
-                tint = Color(0xFFB0B4B6),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
             )
         }
     }
@@ -271,7 +288,7 @@ fun ProfileMenuItem(
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 16.dp),
             thickness = 1.dp,
-            color = BorderColor,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
         )
     }
 }
