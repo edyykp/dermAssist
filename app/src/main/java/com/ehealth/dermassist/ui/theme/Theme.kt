@@ -11,17 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme =
-    darkColorScheme(
-        primary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Purple80,
-        secondary = _root_ide_package_.com.ehealth.dermassist.ui.theme.PurpleGrey80,
-        tertiary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Pink80,
-    )
+    darkColorScheme(primary = Purple80, secondary = PurpleGrey80, tertiary = Pink80)
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Purple40,
-        secondary = _root_ide_package_.com.ehealth.dermassist.ui.theme.PurpleGrey40,
-        tertiary = _root_ide_package_.com.ehealth.dermassist.ui.theme.Pink40,
+        primary = Purple40,
+        secondary = PurpleGrey40,
+        tertiary = Pink40,
 
         /* Other default colors to override
         background = Color(0xFFFFFBFE),
@@ -48,13 +44,9 @@ fun DermAssistTheme(
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             }
 
-            darkTheme -> _root_ide_package_.com.ehealth.dermassist.ui.theme.DarkColorScheme
-            else -> _root_ide_package_.com.ehealth.dermassist.ui.theme.LightColorScheme
+            darkTheme -> DarkColorScheme
+            else -> LightColorScheme
         }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = _root_ide_package_.com.ehealth.dermassist.ui.theme.Typography,
-        content = content,
-    )
+    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
 }

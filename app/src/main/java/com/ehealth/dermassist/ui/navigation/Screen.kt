@@ -1,20 +1,20 @@
 package com.ehealth.dermassist.ui.navigation
 
 sealed class Screen(val route: String) {
-    object Splash : com.ehealth.dermassist.ui.navigation.Screen("splash")
+    object Splash : Screen("splash")
 
-    object Onboarding : com.ehealth.dermassist.ui.navigation.Screen("onboarding")
+    object Onboarding : Screen("onboarding")
 
-    object Login : com.ehealth.dermassist.ui.navigation.Screen("login")
+    object Login : Screen("login")
 
-    object Main : com.ehealth.dermassist.ui.navigation.Screen("main")
+    object Main : Screen("main")
 
     // Bottom tab routes
-    object Home : com.ehealth.dermassist.ui.navigation.Screen("home")
+    object Home : Screen("home")
 
-    object Report : com.ehealth.dermassist.ui.navigation.Screen("report")
+    object Report : Screen("report")
 
-    object History : com.ehealth.dermassist.ui.navigation.Screen("history")
+    object History : Screen("history")
 
-    object Profile : com.ehealth.dermassist.ui.navigation.Screen("profile")
+    object Profile : Screen("profile")
 }

@@ -2,13 +2,18 @@ package com.ehealth.dermassist.ui.features.main
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DocumentScanner
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.DocumentScanner
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,36 +30,54 @@ import com.ehealth.dermassist.ui.features.home.HomeScreen
 import com.ehealth.dermassist.ui.features.profile.ProfileScreen
 import com.ehealth.dermassist.ui.features.report.ReportScreen
 import com.ehealth.dermassist.ui.navigation.Screen
+import com.ehealth.dermassist.ui.theme.BackgroundWhite
+import com.ehealth.dermassist.ui.theme.BodyText
+import com.ehealth.dermassist.ui.theme.IconBgGreen
+import com.ehealth.dermassist.ui.theme.PrimaryGreen
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val items =
-        listOf(
-            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home,
-            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report,
-            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History,
-            _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile,
-        )
+    val items = listOf(Screen.Home, Screen.Report, Screen.History, Screen.Profile)
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(containerColor = BackgroundWhite) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 items.forEach { screen ->
                     NavigationBarItem(
                         icon = {
                             when (screen) {
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
-                                    .Home -> Icon(Icons.Filled.Home, contentDescription = null)
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
-                                    .Report -> Icon(Icons.Filled.Info, contentDescription = null)
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
-                                    .History -> Icon(Icons.Filled.List, contentDescription = null)
-                                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen
-                                    .Profile -> Icon(Icons.Filled.Person, contentDescription = null)
-                                else -> Icon(Icons.Filled.Home, contentDescription = null)
+                                Screen.Home ->
+                                    if (currentDestination == Screen.Home)
+                                        Icon(Icons.Filled.Home, contentDescription = null)
+                                    else Icon(Icons.Outlined.Home, contentDescription = null)
+                                Screen.Report ->
+                                    if (currentDestination == Screen.Report)
+                                        Icon(
+                                            Icons.Filled.DocumentScanner,
+                                            contentDescription = null,
+                                        )
+                                    else
+                                        Icon(
+                                            Icons.Outlined.DocumentScanner,
+                                            contentDescription = null,
+                                        )
+
+                                Screen.History ->
+                                    if (currentDestination == Screen.History)
+                                        Icon(Icons.Filled.Folder, contentDescription = null)
+                                    else Icon(Icons.Outlined.Folder, contentDescription = null)
+                                Screen.Profile ->
+                                    if (currentDestination == Screen.Profile)
+                                        Icon(Icons.Filled.Person, contentDescription = null)
+                                    else Icon(Icons.Outlined.Person, contentDescription = null)
+
+                                else ->
+                                    if (currentDestination == Screen.Home)
+                                        Icon(Icons.Filled.Home, contentDescription = null)
+                                    else Icon(Icons.Outlined.Home, contentDescription = null)
                             }
                         },
                         label = { Text(screen.route.replaceFirstChar { it.uppercase() }) },
@@ -69,6 +92,14 @@ fun MainScreen() {
                                 restoreState = true
                             }
                         },
+                        colors =
+                            NavigationBarItemDefaults.colors(
+                                indicatorColor = IconBgGreen,
+                                selectedIconColor = PrimaryGreen,
+                                selectedTextColor = PrimaryGreen,
+                                unselectedIconColor = BodyText,
+                                unselectedTextColor = BodyText,
+                            ),
                     )
                 }
             }
@@ -76,28 +107,13 @@ fun MainScreen() {
     ) { innerPadding ->
         NavHost(
             navController,
-            startDestination =
-                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home.route,
+            startDestination = Screen.Home.route,
             Modifier.padding(innerPadding),
         ) {
-            composable(_root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Home.route) {
-                _root_ide_package_.com.ehealth.dermassist.ui.features.home.HomeScreen()
-            }
-            composable(
-                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Report.route
-            ) {
-                _root_ide_package_.com.ehealth.dermassist.ui.features.report.ReportScreen()
-            }
-            composable(
-                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.History.route
-            ) {
-                _root_ide_package_.com.ehealth.dermassist.ui.features.history.HistoryScreen()
-            }
-            composable(
-                _root_ide_package_.com.ehealth.dermassist.ui.navigation.Screen.Profile.route
-            ) {
-                _root_ide_package_.com.ehealth.dermassist.ui.features.profile.ProfileScreen()
-            }
+            composable(Screen.Home.route) { HomeScreen() }
+            composable(Screen.Report.route) { ReportScreen() }
+            composable(Screen.History.route) { HistoryScreen() }
+            composable(Screen.Profile.route) { ProfileScreen() }
         }
     }
 }
