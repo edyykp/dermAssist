@@ -152,7 +152,7 @@ fun SplashScreen(
                 border =
                     androidx.compose.foundation.BorderStroke(
                         1.5.dp,
-                        MaterialTheme.colorScheme.outline
+                        MaterialTheme.colorScheme.outline,
                     ),
                 colors =
                     ButtonDefaults.outlinedButtonColors(
@@ -181,7 +181,7 @@ fun SplashScreen(
             ) {
                 HorizontalDivider(
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.outline
+                    color = MaterialTheme.colorScheme.outline,
                 )
                 Text(
                     text = "or",
@@ -191,7 +191,7 @@ fun SplashScreen(
                 )
                 HorizontalDivider(
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.outline
+                    color = MaterialTheme.colorScheme.outline,
                 )
             }
 
@@ -206,7 +206,7 @@ fun SplashScreen(
                 border =
                     androidx.compose.foundation.BorderStroke(
                         1.5.dp,
-                        MaterialTheme.colorScheme.outlineVariant
+                        MaterialTheme.colorScheme.outlineVariant,
                     ),
             ) {
                 Text(

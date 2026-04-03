@@ -8,6 +8,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -56,6 +58,9 @@ private val LightColorScheme =
         inversePrimary = IconBgGreen,
     )
 
+val MaterialTheme.dimens: Dimens
+    @Composable @ReadOnlyComposable get() = LocalDimens.current
+
 @Composable
 fun DermAssistTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -74,5 +79,7 @@ fun DermAssistTheme(
             else -> LightColorScheme
         }
 
-    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    CompositionLocalProvider(LocalDimens provides Dimens()) {
+        MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    }
 }

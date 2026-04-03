@@ -35,7 +35,14 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
         // Content
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             // Header
-            Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp)) {
+            Box(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.dimens.lg,
+                            vertical = MaterialTheme.dimens.lg,
+                        )
+            ) {
                 Text(
                     text = "Profile",
                     style = MaterialTheme.typography.displayMedium,
@@ -48,7 +55,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .padding(horizontal = 20.dp)
+                        .padding(horizontal = MaterialTheme.dimens.lg)
                         .clip(RoundedCornerShape(24.dp))
                         .background(
                             brush =
@@ -60,7 +67,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                                         )
                                 )
                         )
-                        .padding(20.dp),
+                        .padding(MaterialTheme.dimens.lg),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -92,7 +99,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.md))
 
                     // Info
                     Column(modifier = Modifier.weight(1f)) {
@@ -119,7 +126,11 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                 ) {
                     Text(
                         text = "Edit",
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                        modifier =
+                            Modifier.padding(
+                                horizontal = MaterialTheme.dimens.md,
+                                vertical = MaterialTheme.dimens.sm,
+                            ),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -130,8 +141,13 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
 
             // Stats Row
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.dimens.lg,
+                            vertical = MaterialTheme.dimens.md,
+                        ),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sm),
             ) {
                 StatCard(modifier = Modifier.weight(1f), number = "12", label = "Total Scans")
             }
@@ -174,7 +190,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.lg))
         }
     }
 }
@@ -188,7 +204,7 @@ fun StatCard(modifier: Modifier = Modifier, number: String, label: String) {
         shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 14.dp),
+            modifier = Modifier.padding(vertical = MaterialTheme.dimens.md),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -212,18 +228,23 @@ fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier =
             Modifier.fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(horizontal = MaterialTheme.dimens.lg, vertical = MaterialTheme.dimens.sm)
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.onPrimary)
                 .border(
                     0.5.dp,
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                     RoundedCornerShape(20.dp),
-                ),
+                )
     ) {
         Text(
             text = title.uppercase(),
-            modifier = Modifier.padding(start = 16.dp, top = 14.dp, bottom = 8.dp),
+            modifier =
+                Modifier.padding(
+                    start = MaterialTheme.dimens.md,
+                    top = MaterialTheme.dimens.md,
+                    bottom = MaterialTheme.dimens.sm,
+                ),
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,
@@ -248,7 +269,10 @@ fun ProfileMenuItem(
         modifier =
             Modifier.fillMaxWidth()
                 .clickable { onClick() }
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(
+                    horizontal = MaterialTheme.dimens.md,
+                    vertical = MaterialTheme.dimens.md,
+                ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -264,7 +288,7 @@ fun ProfileMenuItem(
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(MaterialTheme.dimens.md))
 
         Text(
             text = label,
@@ -286,7 +310,7 @@ fun ProfileMenuItem(
 
     if (!isLast) {
         HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = MaterialTheme.dimens.md),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
         )
