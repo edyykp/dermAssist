@@ -1,6 +1,7 @@
 package com.ehealth.dermassist.ui.features.splash
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
@@ -54,11 +55,11 @@ class SplashScreenViewModel @Inject constructor(private val repository: AppRepos
                             onSuccess()
                         }
                     } catch (e: Exception) {
-                        // Silent fail or handle error state
+                        Log.e("SplashScreenViewModel", "Error creating GoogleIdTokenCredential", e)
                     }
                 }
             } catch (e: Exception) {
-                // Silent fail or handle error state
+                Log.e("SplashScreenViewModel", "Error getting credential", e)
             } finally {
                 _isLoading.value = false
             }
