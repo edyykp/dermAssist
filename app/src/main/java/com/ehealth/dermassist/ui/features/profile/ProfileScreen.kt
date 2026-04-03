@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.ui.theme.*
@@ -33,16 +32,14 @@ import com.ehealth.dermassist.ui.theme.*
 fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         // Content
-        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+        Column(
+            modifier =
+                Modifier.weight(1f)
+                    .padding(horizontal = MaterialTheme.dimens.md)
+                    .verticalScroll(rememberScrollState())
+        ) {
             // Header
-            Box(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(
-                            horizontal = MaterialTheme.dimens.lg,
-                            vertical = MaterialTheme.dimens.lg,
-                        )
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.lg)) {
                 Text(
                     text = "Profile",
                     style = MaterialTheme.typography.displayMedium,
@@ -55,8 +52,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.dimens.lg)
-                        .clip(RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(MaterialTheme.dimens.radiusXxl))
                         .background(
                             brush =
                                 Brush.linearGradient(
@@ -67,7 +63,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                                         )
                                 )
                         )
-                        .padding(MaterialTheme.dimens.lg),
+                        .padding(MaterialTheme.dimens.md)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -76,7 +72,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                     // Avatar
                     Box(
                         modifier =
-                            Modifier.size(64.dp)
+                            Modifier.size(MaterialTheme.dimens.avatarSize)
                                 .clip(CircleShape)
                                 .background(
                                     brush =
@@ -88,7 +84,11 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                                                 )
                                         )
                                 )
-                                .border(3.dp, MaterialTheme.colorScheme.onPrimary, CircleShape),
+                                .border(
+                                    MaterialTheme.dimens.borderExtraThick,
+                                    MaterialTheme.colorScheme.onPrimary,
+                                    CircleShape,
+                                ),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -121,7 +121,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                 // Edit Button
                 Surface(
                     modifier = Modifier.align(Alignment.TopEnd),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(MaterialTheme.dimens.radiusMd),
                     color = MaterialTheme.colorScheme.onPrimary,
                 ) {
                     Text(
@@ -141,12 +141,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
 
             // Stats Row
             Row(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(
-                            horizontal = MaterialTheme.dimens.lg,
-                            vertical = MaterialTheme.dimens.md,
-                        ),
+                modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.md),
                 horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sm),
             ) {
                 StatCard(modifier = Modifier.weight(1f), number = "12", label = "Total Scans")
@@ -190,7 +185,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(MaterialTheme.dimens.lg))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
         }
     }
 }
@@ -199,9 +194,9 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
 fun StatCard(modifier: Modifier = Modifier, number: String, label: String) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(MaterialTheme.dimens.radiusLg),
         color = MaterialTheme.colorScheme.onPrimary,
-        shadowElevation = 1.dp,
+        shadowElevation = MaterialTheme.dimens.elevationSm,
     ) {
         Column(
             modifier = Modifier.padding(vertical = MaterialTheme.dimens.md),
@@ -228,13 +223,13 @@ fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier =
             Modifier.fillMaxWidth()
-                .padding(horizontal = MaterialTheme.dimens.lg, vertical = MaterialTheme.dimens.sm)
-                .clip(RoundedCornerShape(20.dp))
+                .padding(vertical = MaterialTheme.dimens.sm)
+                .clip(RoundedCornerShape(MaterialTheme.dimens.radiusXl))
                 .background(MaterialTheme.colorScheme.onPrimary)
                 .border(
-                    0.5.dp,
+                    MaterialTheme.dimens.borderThin,
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                    RoundedCornerShape(20.dp),
+                    RoundedCornerShape(MaterialTheme.dimens.radiusXl),
                 )
     ) {
         Text(
@@ -269,21 +264,20 @@ fun ProfileMenuItem(
         modifier =
             Modifier.fillMaxWidth()
                 .clickable { onClick() }
-                .padding(
-                    horizontal = MaterialTheme.dimens.md,
-                    vertical = MaterialTheme.dimens.md,
-                ),
+                .padding(horizontal = MaterialTheme.dimens.md, vertical = MaterialTheme.dimens.md),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier =
-                Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(iconContainerColor),
+                Modifier.size(MaterialTheme.dimens.grid45)
+                    .clip(RoundedCornerShape(MaterialTheme.dimens.radiusXs))
+                    .background(iconContainerColor),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(MaterialTheme.dimens.iconMd),
                 tint = iconColor,
             )
         }
@@ -302,7 +296,7 @@ fun ProfileMenuItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(MaterialTheme.dimens.iconSm),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
             )
         }
@@ -311,7 +305,7 @@ fun ProfileMenuItem(
     if (!isLast) {
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = MaterialTheme.dimens.md),
-            thickness = 1.dp,
+            thickness = MaterialTheme.dimens.borderNormal,
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
         )
     }

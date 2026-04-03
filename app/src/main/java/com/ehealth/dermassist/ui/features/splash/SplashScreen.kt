@@ -16,16 +16,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ehealth.dermassist.R
+import com.ehealth.dermassist.ui.components.GoogleButton
+import com.ehealth.dermassist.ui.components.PrimaryButton
 import com.ehealth.dermassist.ui.features.auth.AuthViewModel
+import com.ehealth.dermassist.ui.theme.*
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -59,16 +60,16 @@ fun SplashScreen(
                 Modifier.weight(1f)
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 32.dp),
+                    .padding(horizontal = MaterialTheme.dimens.md),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.xl))
 
             // Logo
             Box(
                 modifier =
-                    Modifier.size(72.dp)
-                        .clip(RoundedCornerShape(20.dp))
+                    Modifier.size(MaterialTheme.dimens.logoSize)
+                        .clip(RoundedCornerShape(MaterialTheme.dimens.radiusXl))
                         .background(
                             brush =
                                 Brush.linearGradient(
@@ -85,11 +86,11 @@ fun SplashScreen(
                     imageVector = Icons.Default.Face,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(MaterialTheme.dimens.iconXl),
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.lg))
 
             Text(
                 text = "DermAssist",
@@ -103,7 +104,7 @@ fun SplashScreen(
                 color = MaterialTheme.colorScheme.primary,
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.lg))
 
             Text(
                 text = "Your skin deserves expert attention, every day.",
@@ -112,7 +113,7 @@ fun SplashScreen(
                 textAlign = TextAlign.Center,
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
 
             Text(
                 text =
@@ -122,13 +123,13 @@ fun SplashScreen(
                 textAlign = TextAlign.Center,
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.lg))
 
             // Pills
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sm),
                 maxItemsInEachRow = 2,
             ) {
                 PillItem(color = MaterialTheme.colorScheme.primary, text = "AI-powered scan")
@@ -136,44 +137,19 @@ fun SplashScreen(
                 PillItem(color = MaterialTheme.colorScheme.tertiary, text = "Progress tracking")
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.lg))
         }
 
         // Fixed Bottom CTA Section
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp).padding(bottom = 32.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.dimens.lg)
+                    .padding(bottom = MaterialTheme.dimens.lg),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.md),
         ) {
-            OutlinedButton(
-                onClick = { authViewModel.handleGoogleSignIn(context, onNavigateToHome) },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(28.dp),
-                border =
-                    androidx.compose.foundation.BorderStroke(
-                        1.5.dp,
-                        MaterialTheme.colorScheme.outline,
-                    ),
-                colors =
-                    ButtonDefaults.outlinedButtonColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painterResource(R.drawable.variant_2),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.Unspecified,
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Continue with Google",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                }
-            }
+            GoogleButton { authViewModel.handleGoogleSignIn(context, onNavigateToHome) }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -185,7 +161,7 @@ fun SplashScreen(
                 )
                 Text(
                     text = "or",
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    modifier = Modifier.padding(horizontal = MaterialTheme.dimens.md),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -195,28 +171,9 @@ fun SplashScreen(
                 )
             }
 
-            Button(
-                onClick = onSignUpLogin,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                border =
-                    androidx.compose.foundation.BorderStroke(
-                        1.5.dp,
-                        MaterialTheme.colorScheme.outlineVariant,
-                    ),
-            ) {
-                Text(
-                    text = "Sign Up / Log In",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
+            PrimaryButton(text = "Sign Up / Log In", onClick = onSignUpLogin)
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
 
             // Terms
             Text(
@@ -255,17 +212,27 @@ fun SplashScreen(
 @Composable
 fun PillItem(color: Color, text: String) {
     Surface(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(MaterialTheme.dimens.radiusXl),
         border =
-            androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline),
+            androidx.compose.foundation.BorderStroke(
+                MaterialTheme.dimens.borderThick,
+                MaterialTheme.colorScheme.outline,
+            ),
         color = MaterialTheme.colorScheme.background,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+            modifier =
+                Modifier.padding(
+                    horizontal = MaterialTheme.dimens.md,
+                    vertical = MaterialTheme.dimens.sm,
+                ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.xs),
         ) {
-            Box(modifier = Modifier.size(7.dp).background(color, CircleShape))
+            Box(
+                modifier =
+                    Modifier.size(MaterialTheme.dimens.indicatorSize).background(color, CircleShape)
+            )
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
@@ -273,4 +240,10 @@ fun PillItem(color: Color, text: String) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun SplashScreenPreview() {
+    DermAssistTheme { SplashScreen(onNavigateToHome = {}, onSignUpLogin = {}) }
 }
