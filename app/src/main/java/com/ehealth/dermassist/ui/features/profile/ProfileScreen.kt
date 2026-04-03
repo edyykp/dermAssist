@@ -56,9 +56,12 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                                     colors = listOf(BackgroundGradientStart, Color(0xFFE4EEF9))
                                 )
                         )
-                        .padding(20.dp),
+                        .padding(20.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     // Avatar
                     Box(
                         modifier =
@@ -180,13 +183,13 @@ fun StatCard(modifier: Modifier = Modifier, number: String, label: String) {
             modifier = Modifier.padding(vertical = 14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = number, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = PrimaryGreen)
             Text(
-                text = label,
-                fontSize = 11.sp,
-                color = BodyText,
-                fontWeight = FontWeight.Medium,
+                text = number,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryGreen,
             )
+            Text(text = label, fontSize = 11.sp, color = BodyText, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -199,7 +202,7 @@ fun SectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
                 .padding(horizontal = 20.dp, vertical = 8.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color.White)
-                .border(0.5.dp, Color.LightGray.copy(alpha = 0.3f), RoundedCornerShape(20.dp)),
+                .border(0.5.dp, Color.LightGray.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
     ) {
         Text(
             text = title.uppercase(),
@@ -232,7 +235,8 @@ fun ProfileMenuItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(iconContainerColor),
+            modifier =
+                Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(iconContainerColor),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -264,7 +268,11 @@ fun ProfileMenuItem(
     }
 
     if (!isLast) {
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 1.dp, color = BorderColor)
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 1.dp,
+            color = BorderColor,
+        )
     }
 }
 

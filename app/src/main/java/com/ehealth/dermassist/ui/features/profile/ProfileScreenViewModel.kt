@@ -8,13 +8,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ProfileScreenViewModel @Inject constructor(
-    private val repository: AppRepository
-) : ViewModel() {
+class ProfileScreenViewModel @Inject constructor(private val repository: AppRepository) :
+    ViewModel() {
 
     fun logout() {
-        viewModelScope.launch {
-            repository.logout()
-        }
+        viewModelScope.launch { repository.logout() }
     }
 }
