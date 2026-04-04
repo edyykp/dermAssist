@@ -23,6 +23,7 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     variant: ButtonVariant = ButtonVariant.Primary,
+    enabled: Boolean = true,
 ) {
     val containerColor =
         if (variant == ButtonVariant.Primary) MaterialTheme.colorScheme.primaryContainer
@@ -47,6 +48,7 @@ fun PrimaryButton(
                 contentColor = contentColor,
             ),
         border = border,
+        enabled = enabled,
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
