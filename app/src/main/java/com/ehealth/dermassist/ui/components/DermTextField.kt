@@ -39,45 +39,53 @@ fun DermTextField(
             text = label.uppercase(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
-            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            color =
+                if (isError) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.onSurfaceVariant,
             letterSpacing = 0.3.sp,
-            modifier = Modifier.padding(bottom = MaterialTheme.dimens.grid075)
+            modifier = Modifier.padding(bottom = MaterialTheme.dimens.grid075),
         )
 
-        val borderColor = when {
-            isError -> MaterialTheme.colorScheme.error
-            isFocused -> MaterialTheme.colorScheme.primary
-            else -> MaterialTheme.colorScheme.outline
-        }
+        val borderColor =
+            when {
+                isError -> MaterialTheme.colorScheme.error
+                isFocused -> MaterialTheme.colorScheme.primary
+                else -> MaterialTheme.colorScheme.outline
+            }
 
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = MaterialTheme.dimens.borderThick,
-                    color = borderColor,
-                    shape = RoundedCornerShape(MaterialTheme.dimens.radiusMd)
-                )
-                .padding(horizontal = MaterialTheme.dimens.md, vertical = MaterialTheme.dimens.grid175),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface
-            ),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .border(
+                        width = MaterialTheme.dimens.borderThick,
+                        color = borderColor,
+                        shape = RoundedCornerShape(MaterialTheme.dimens.radiusMd),
+                    )
+                    .padding(
+                        horizontal = MaterialTheme.dimens.md,
+                        vertical = MaterialTheme.dimens.grid175,
+                    ),
+            textStyle =
+                MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             visualTransformation = visualTransformation,
             keyboardOptions = keyboardOptions,
             decorationBox = { innerTextField ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
                         if (value.isEmpty()) {
                             Text(
                                 text = placeholder,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                color =
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             )
                         }
                         innerTextField()
@@ -86,7 +94,7 @@ fun DermTextField(
                         trailingIcon()
                     }
                 }
-            }
+            },
         )
 
         if (isError && errorMessage != null) {
@@ -94,7 +102,7 @@ fun DermTextField(
                 text = errorMessage,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = MaterialTheme.dimens.grid05)
+                modifier = Modifier.padding(top = MaterialTheme.dimens.grid05),
             )
         }
     }
