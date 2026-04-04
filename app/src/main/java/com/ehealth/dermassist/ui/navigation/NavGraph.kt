@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,7 +20,6 @@ import com.ehealth.dermassist.ui.features.auth.LoginScreen
 import com.ehealth.dermassist.ui.features.main.MainScreen
 import com.ehealth.dermassist.ui.features.onboarding.OnboardingScreen
 import com.ehealth.dermassist.ui.features.splash.SplashScreen
-import com.ehealth.dermassist.ui.theme.*
 
 @Composable
 fun AppNavGraph() {
@@ -37,15 +37,14 @@ fun AppNavGraph() {
                             Brush.verticalGradient(
                                 colors =
                                     listOf(
-                                        BackgroundGradientStart,
-                                        BackgroundGradientMid,
-                                        BackgroundWhite,
+                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        MaterialTheme.colorScheme.background,
                                     )
                             )
                     ),
             contentAlignment = Alignment.Center,
         ) {
-            CircularProgressIndicator(color = PrimaryGreen)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }
         return
     }
@@ -65,7 +64,16 @@ fun AppNavGraph() {
             )
         }
         composable(Screen.Onboarding.route) { OnboardingScreen() }
-        composable(Screen.Login.route) { LoginScreen() }
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onBackClick = { navController.popBackStack() },
+                onSuccess = {
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+            )
+        }
         composable(Screen.Main.route) { MainScreen() }
     }
 }
