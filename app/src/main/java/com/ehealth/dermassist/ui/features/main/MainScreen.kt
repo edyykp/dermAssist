@@ -108,7 +108,9 @@ fun MainScreen() {
             Modifier.padding(innerPadding),
         ) {
             composable(Screen.Home.route) { HomeScreen() }
-            composable(Screen.Report.route) { ReportScreen() }
+            composable(Screen.Report.route) {
+                ReportScreen(onRescanClick = { navController.navigate(Screen.Home.route) })
+            }
             composable(Screen.History.route) { HistoryScreen() }
             composable(Screen.Profile.route) { ProfileScreen() }
         }

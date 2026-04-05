@@ -20,6 +20,7 @@ val PillBlue = Color(0xFF3B7DD8)
 val PillPurple = Color(0xFF7C3AED)
 val BadgeOrangeBg = Color(0xFFFFF8E8)
 val BadgeOrangeText = Color(0xFF7A5800)
+val TipYellow = Color(0xFFFBC02D)
 
 // Icon backgrounds
 val IconBgGreen = Color(0xFFE8F5F1)

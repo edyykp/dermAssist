@@ -18,10 +18,10 @@ enum class ButtonVariant {
 }
 
 @Composable
-fun PrimaryButton(
+fun DermButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     variant: ButtonVariant = ButtonVariant.Primary,
     enabled: Boolean = true,
 ) {
@@ -40,7 +40,7 @@ fun PrimaryButton(
 
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(MaterialTheme.dimens.buttonHeight),
+        modifier = modifier.height(MaterialTheme.dimens.buttonHeight),
         shape = RoundedCornerShape(MaterialTheme.dimens.radiusHuge),
         colors =
             ButtonDefaults.buttonColors(

@@ -23,8 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.components.GoogleButton
-import com.ehealth.dermassist.ui.components.PrimaryButton
 import com.ehealth.dermassist.ui.features.auth.AuthViewModel
 import com.ehealth.dermassist.ui.theme.*
 
@@ -171,7 +171,7 @@ fun SplashScreen(
                 )
             }
 
-            PrimaryButton(text = "Sign Up / Log In", onClick = onSignUpLogin)
+            DermButton(text = "Sign Up / Log In", onClick = onSignUpLogin)
 
             Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
 

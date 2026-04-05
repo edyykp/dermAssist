@@ -34,9 +34,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.components.DermTextField
 import com.ehealth.dermassist.ui.components.GoogleButton
-import com.ehealth.dermassist.ui.components.PrimaryButton
 import com.ehealth.dermassist.ui.theme.dimens
 import kotlinx.coroutines.launch
 
@@ -317,7 +317,7 @@ fun LoginScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 } else {
-                    PrimaryButton(
+                    DermButton(
                         text = if (isSignUp) "Create Account" else "Log In",
                         onClick = {
                             focusManager.clearFocus()
