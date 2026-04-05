@@ -66,7 +66,6 @@ fun EditProfileScreen(
     val dimens = MaterialTheme.dimens
     val focusManager = LocalFocusManager.current
 
-    // Editable state
     var name by remember { mutableStateOf(profile.name) }
     var age by remember { mutableStateOf(profile.age.toString()) }
     var nameError by remember { mutableStateOf<String?>(null) }
@@ -81,148 +80,177 @@ fun EditProfileScreen(
         }
     }
 
-    Column(
+    // ── Root: scrollable content + fixed bottom bar ───────────────────────────
+    Box(
         modifier =
-            Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .verticalScroll(rememberScrollState())
+            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).statusBarsPadding()
     ) {
-        Spacer(modifier = Modifier.height(dimens.md))
 
-        // ── Top Bar ───────────────────────────────────────────────────────────
-        EditProfileTopBar(onCancel = onCancel)
+        // ── Scrollable body ───────────────────────────────────────────────────
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    // Bottom padding so content is never hidden behind the button bar
+                    .padding(
+                        bottom = dimens.grid9 + dimens.grid9 + dimens.xl
+                    ) // ~144dp — 2 buttons + spacing
+        ) {
+            Spacer(modifier = Modifier.height(dimens.md))
 
-        // ── Avatar ────────────────────────────────────────────────────────────
-        AvatarSection(initials = profile.getInitials())
+            EditProfileTopBar(onCancel = onCancel)
+            AvatarSection(initials = profile.getInitials())
+            EditableBanner()
 
-        // ── Info Banner ───────────────────────────────────────────────────────
-        EditableBanner()
+            Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.md))
+            FieldSectionLabel(label = "Editable Fields")
 
-        // ── Editable Fields ───────────────────────────────────────────────────
-        FieldSectionLabel(label = "Editable Fields")
+            Spacer(modifier = Modifier.height(dimens.sm))
 
-        Spacer(modifier = Modifier.height(dimens.sm))
-
-        // Name field
-        EditableTextField(
-            label = "FULL NAME",
-            value = name,
-            placeholder = "Enter your full name",
-            errorText = nameError,
-            keyboardOptions =
-                KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next,
-                ),
-            keyboardActions =
-                KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
-            onValueChange = {
-                name = it
-                isDirty = true
-                nameError = null
-            },
-        )
-
-        Spacer(modifier = Modifier.height(dimens.md))
-
-        // Age field
-        EditableTextField(
-            label = "AGE",
-            value = age,
-            placeholder = "Enter your age",
-            errorText = ageError,
-            keyboardOptions =
-                KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-            keyboardActions =
-                KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                        attemptSave()
-                    }
-                ),
-            onValueChange = {
-                // Only allow numeric input up to 3 digits
-                if (it.length <= 3 && it.all { c -> c.isDigit() }) {
-                    age = it
+            EditableTextField(
+                label = "FULL NAME",
+                value = name,
+                placeholder = "Enter your full name",
+                errorText = nameError,
+                keyboardOptions =
+                    KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next,
+                    ),
+                keyboardActions =
+                    KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
+                onValueChange = {
+                    name = it
                     isDirty = true
-                    ageError = null
-                }
-            },
-        )
-
-        Spacer(modifier = Modifier.height(dimens.grid25))
-
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = dimens.grid25),
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-            thickness = dimens.borderNormal,
-        )
-
-        Spacer(modifier = Modifier.height(dimens.grid25))
-
-        // ── Read-only Fields ──────────────────────────────────────────────────
-        FieldSectionLabel(label = "Read-only Fields")
-
-        Spacer(modifier = Modifier.height(dimens.sm))
-
-        Spacer(modifier = Modifier.height(dimens.md))
-
-        ReadOnlyField(label = "MEMBER SINCE", value = profile.memberSince)
-
-        Spacer(modifier = Modifier.height(dimens.md))
-
-        ReadOnlyField(
-            label = "EMAIL",
-            value = profile.email,
-            hint = "Linked to your sign-in account",
-        )
-
-        Spacer(modifier = Modifier.height(dimens.grid3))
-
-        // ── Save Button ───────────────────────────────────────────────────────
-        Button(
-            onClick = { attemptSave() },
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = dimens.grid25)
-                    .height(dimens.buttonHeight),
-            shape = RoundedCornerShape(dimens.radiusHuge),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                ),
-            enabled = isDirty,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Save,
-                contentDescription = null,
-                modifier = Modifier.size(dimens.iconSm),
+                    nameError = null
+                },
             )
-            Spacer(modifier = Modifier.width(dimens.sm))
-            Text(text = "Save Changes", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+
+            Spacer(modifier = Modifier.height(dimens.md))
+
+            EditableTextField(
+                label = "AGE",
+                value = age,
+                placeholder = "Enter your age",
+                errorText = ageError,
+                keyboardOptions =
+                    KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            attemptSave()
+                        }
+                    ),
+                onValueChange = {
+                    if (it.length <= 3 && it.all { c -> c.isDigit() }) {
+                        age = it
+                        isDirty = true
+                        ageError = null
+                    }
+                },
+            )
+
+            Spacer(modifier = Modifier.height(dimens.grid25))
+
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = dimens.grid25),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                thickness = dimens.borderNormal,
+            )
+
+            Spacer(modifier = Modifier.height(dimens.grid25))
+
+            FieldSectionLabel(label = "Read-only Fields")
+
+            Spacer(modifier = Modifier.height(dimens.sm))
+
+            ReadOnlyField(label = "MEMBER SINCE", value = profile.memberSince)
+
+            Spacer(modifier = Modifier.height(dimens.md))
+
+            ReadOnlyField(
+                label = "EMAIL",
+                value = profile.email,
+                hint = "Linked to your sign-in account",
+            )
         }
 
-        // ── Cancel Button ─────────────────────────────────────────────────────
-        OutlinedButton(
-            onClick = onCancel,
+        // ── Fixed bottom button bar ───────────────────────────────────────────
+        EditProfileBottomBar(
+            isDirty = isDirty,
+            onSave = { attemptSave() },
+            onCancel = onCancel,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+}
+
+// ─── Bottom Bar ───────────────────────────────────────────────────────────────
+
+@Composable
+private fun EditProfileBottomBar(
+    isDirty: Boolean,
+    onSave: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dimens = MaterialTheme.dimens
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = MaterialTheme.dimens.md, // lifts the bar visually above scroll content
+        tonalElevation = MaterialTheme.dimens.xxs,
+    ) {
+        Column(
             modifier =
                 Modifier.fillMaxWidth()
-                    .padding(horizontal = dimens.grid25)
-                    .padding(top = dimens.grid15)
-                    .height(dimens.buttonHeight),
-            shape = RoundedCornerShape(dimens.radiusHuge),
-            colors =
-                ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
+                    .navigationBarsPadding() // respects gesture bar / home indicator
+                    .padding(
+                        start = dimens.grid25,
+                        end = dimens.grid25,
+                        top = dimens.md,
+                        bottom = dimens.md,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(dimens.grid15),
         ) {
-            Text(text = "Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-        }
+            // Save — primary
+            Button(
+                onClick = onSave,
+                enabled = isDirty,
+                modifier = Modifier.fillMaxWidth().height(dimens.buttonHeight),
+                shape = RoundedCornerShape(dimens.radiusHuge),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor =
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                    ),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Save,
+                    contentDescription = null,
+                    modifier = Modifier.size(dimens.iconSm),
+                )
+                Spacer(modifier = Modifier.width(dimens.sm))
+                Text(text = "Save Changes", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            }
 
-        Spacer(modifier = Modifier.height(dimens.grid3))
+            // Cancel — outlined
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.fillMaxWidth().height(dimens.buttonHeight),
+                shape = RoundedCornerShape(dimens.radiusHuge),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+            ) {
+                Text(text = "Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
     }
 }
 
@@ -441,7 +469,7 @@ private fun EditableTextField(
                     modifier = Modifier.size(dimens.iconXs),
                 )
                 Text(
-                    text = errorText!!,
+                    text = errorText,
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Medium,
