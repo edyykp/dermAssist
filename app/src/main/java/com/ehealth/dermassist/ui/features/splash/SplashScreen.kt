@@ -1,6 +1,7 @@
 package com.ehealth.dermassist.ui.features.splash
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +35,8 @@ fun SplashScreen(
     authViewModel: AuthViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
     onSignUpLogin: () -> Unit,
+    onTermsClick: () -> Unit,
+    onPrivacyClick: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -204,6 +207,9 @@ fun SplashScreen(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.clickable {
+                    // Logic to detect which part was clicked
+                }
             )
         }
     }
@@ -245,5 +251,12 @@ fun PillItem(color: Color, text: String) {
 @Preview
 @Composable
 private fun SplashScreenPreview() {
-    DermAssistTheme { SplashScreen(onNavigateToHome = {}, onSignUpLogin = {}) }
+    DermAssistTheme {
+        SplashScreen(
+            onNavigateToHome = {},
+            onSignUpLogin = {},
+            onTermsClick = {},
+            onPrivacyClick = {},
+        )
+    }
 }

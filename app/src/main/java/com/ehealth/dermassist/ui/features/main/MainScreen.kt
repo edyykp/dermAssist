@@ -33,7 +33,7 @@ import com.ehealth.dermassist.ui.features.report.ReportScreen
 import com.ehealth.dermassist.ui.navigation.Screen
 
 @Composable
-fun MainScreen() {
+fun MainScreen(onEditProfileClick: () -> Unit) {
     val navController = rememberNavController()
     val items = listOf(Screen.Home, Screen.Report, Screen.History, Screen.Profile)
 
@@ -112,7 +112,7 @@ fun MainScreen() {
                 ReportScreen(onRescanClick = { navController.navigate(Screen.Home.route) })
             }
             composable(Screen.History.route) { HistoryScreen() }
-            composable(Screen.Profile.route) { ProfileScreen() }
+            composable(Screen.Profile.route) { ProfileScreen(onEditProfileClick = onEditProfileClick) }
         }
     }
 }

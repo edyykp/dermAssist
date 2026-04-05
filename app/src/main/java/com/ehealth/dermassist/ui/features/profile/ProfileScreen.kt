@@ -34,7 +34,10 @@ import com.ehealth.dermassist.ui.components.ConfirmExitDialog
 import com.ehealth.dermassist.ui.theme.*
 
 @Composable
-fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    onEditProfileClick: () -> Unit,
+    viewModel: ProfileScreenViewModel = hiltViewModel(),
+) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     if (showLogoutDialog) {
@@ -139,7 +142,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
 
                 // Edit Button
                 Surface(
-                    modifier = Modifier.align(Alignment.TopEnd),
+                    modifier = Modifier.align(Alignment.TopEnd).clickable { onEditProfileClick() },
                     shape = RoundedCornerShape(MaterialTheme.dimens.radiusMd),
                     color = MaterialTheme.colorScheme.onPrimary,
                 ) {
@@ -173,6 +176,7 @@ fun ProfileScreen(viewModel: ProfileScreenViewModel = hiltViewModel()) {
                     iconContainerColor = MaterialTheme.colorScheme.inversePrimary,
                     iconColor = MaterialTheme.colorScheme.primary,
                     label = "Edit Profile",
+                    onClick = onEditProfileClick
                 )
                 ProfileMenuItem(
                     icon = Icons.Outlined.Lock,
@@ -333,5 +337,5 @@ fun ProfileMenuItem(
 @Preview
 @Composable
 private fun ProfileScreenPreview() {
-    DermAssistTheme { ProfileScreen() }
+    DermAssistTheme { ProfileScreen(onEditProfileClick = {}) }
 }

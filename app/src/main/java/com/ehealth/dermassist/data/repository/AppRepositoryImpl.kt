@@ -20,7 +20,13 @@ class AppRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAu
                 val firebaseUser = auth.currentUser
                 val user =
                     firebaseUser?.let {
-                        User(id = it.uid, email = it.email ?: "", name = it.displayName ?: "")
+                        User(
+                            id = it.uid, email = it.email ?: "",
+                            name = it.displayName ?: "",
+                            age = 23,
+                            skinType = "Redness",
+                            memberSince = "23 Aug 2023",
+                        )
                     }
                 trySend(user)
             }

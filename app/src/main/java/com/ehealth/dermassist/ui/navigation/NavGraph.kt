@@ -17,9 +17,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ehealth.dermassist.ui.features.auth.AuthViewModel
 import com.ehealth.dermassist.ui.features.auth.LoginScreen
+import com.ehealth.dermassist.ui.features.legal.PrivacyPolicyScreen
+import com.ehealth.dermassist.ui.features.legal.TermsAndConditionsScreen
 import com.ehealth.dermassist.ui.features.main.MainScreen
 import com.ehealth.dermassist.ui.features.onboarding.OnboardingScreen
+import com.ehealth.dermassist.ui.features.profile.editprofile.EditProfileScreen
 import com.ehealth.dermassist.ui.features.splash.SplashScreen
+import com.ehealth.dermassist.ui.theme.*
 
 @Composable
 fun AppNavGraph() {
@@ -27,7 +31,6 @@ fun AppNavGraph() {
     val authViewModel: AuthViewModel = hiltViewModel()
     val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
 
-    // Show a themed loading state while checking auth state to prevent a blank screen
     if (isLoggedIn == null) {
         Box(
             modifier =
@@ -61,6 +64,8 @@ fun AppNavGraph() {
                     }
                 },
                 onSignUpLogin = { navController.navigate(Screen.Login.route) },
+                onTermsClick = { navController.navigate(Screen.TermsAndConditions.route) },
+                onPrivacyClick = { navController.navigate(Screen.PrivacyPolicy.route) },
             )
         }
         composable(Screen.Onboarding.route) { OnboardingScreen() }
@@ -74,6 +79,17 @@ fun AppNavGraph() {
                 },
             )
         }
-        composable(Screen.Main.route) { MainScreen() }
+        composable(Screen.Main.route) {
+            MainScreen(onEditProfileClick = { navController.navigate(Screen.EditProfile.route) })
+        }
+        composable(Screen.TermsAndConditions.route) {
+            TermsAndConditionsScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(Screen.PrivacyPolicy.route) {
+            PrivacyPolicyScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(Screen.EditProfile.route) {
+            EditProfileScreen(onCancel = { navController.popBackStack() })
+        }
     }
 }
