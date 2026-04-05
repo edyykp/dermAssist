@@ -112,7 +112,9 @@ fun MainScreen(onEditProfileClick: () -> Unit) {
                 ReportScreen(onRescanClick = { navController.navigate(Screen.Home.route) })
             }
             composable(Screen.History.route) { HistoryScreen() }
-            composable(Screen.Profile.route) { ProfileScreen(onEditProfileClick = onEditProfileClick) }
+            composable(Screen.Profile.route) {
+                ProfileScreen(onEditProfileClick = onEditProfileClick)
+            }
         }
     }
 }

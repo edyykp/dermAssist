@@ -207,9 +207,10 @@ fun SplashScreen(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.clickable {
-                    // Logic to detect which part was clicked
-                }
+                modifier =
+                    Modifier.clickable {
+                        // Logic to detect which part was clicked
+                    },
             )
         }
     }

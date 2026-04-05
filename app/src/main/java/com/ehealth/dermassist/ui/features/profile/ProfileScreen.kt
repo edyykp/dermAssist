@@ -176,7 +176,7 @@ fun ProfileScreen(
                     iconContainerColor = MaterialTheme.colorScheme.inversePrimary,
                     iconColor = MaterialTheme.colorScheme.primary,
                     label = "Edit Profile",
-                    onClick = onEditProfileClick
+                    onClick = onEditProfileClick,
                 )
                 ProfileMenuItem(
                     icon = Icons.Outlined.Lock,

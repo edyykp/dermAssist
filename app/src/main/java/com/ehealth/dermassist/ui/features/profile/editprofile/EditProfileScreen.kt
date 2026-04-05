@@ -27,30 +27,33 @@ import androidx.compose.ui.unit.sp
 import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.ui.theme.*
 
-val sampleProfile = User(
-    id = "random_UUID",
-    name        = "Sarah Johnson",
-    age         = 28,
-    skinType    = "Combination · Sensitive",
-    memberSince = "January 2026",
-    email       = "sarah@example.com",
-)
+val sampleProfile =
+    User(
+        id = "random_UUID",
+        name = "Sarah Johnson",
+        age = 28,
+        skinType = "Combination · Sensitive",
+        memberSince = "January 2026",
+        email = "sarah@example.com",
+    )
 
 // ─── Validation Helpers ───────────────────────────────────────────────────────
 
-private fun validateName(name: String): String? = when {
-    name.isBlank()   -> "Name cannot be empty"
-    name.length < 2  -> "Name must be at least 2 characters"
-    name.length > 50 -> "Name must be under 50 characters"
-    else             -> null
-}
+private fun validateName(name: String): String? =
+    when {
+        name.isBlank() -> "Name cannot be empty"
+        name.length < 2 -> "Name must be at least 2 characters"
+        name.length > 50 -> "Name must be under 50 characters"
+        else -> null
+    }
 
-private fun validateAge(age: String): String? = when {
-    age.isBlank()                          -> "Age cannot be empty"
-    age.toIntOrNull() == null              -> "Please enter a valid number"
-    age.toInt() !in 1..120                 -> "Please enter a valid age (1–120)"
-    else                                   -> null
-}
+private fun validateAge(age: String): String? =
+    when {
+        age.isBlank() -> "Age cannot be empty"
+        age.toIntOrNull() == null -> "Please enter a valid number"
+        age.toInt() !in 1..120 -> "Please enter a valid age (1–120)"
+        else -> null
+    }
 
 // ─── Edit Profile Screen ──────────────────────────────────────────────────────
 
@@ -60,29 +63,29 @@ fun EditProfileScreen(
     onSave: (name: String, age: Int) -> Unit = { _, _ -> },
     onCancel: () -> Unit = {},
 ) {
-    val dimens       = MaterialTheme.dimens
+    val dimens = MaterialTheme.dimens
     val focusManager = LocalFocusManager.current
 
     // Editable state
-    var name       by remember { mutableStateOf(profile.name) }
-    var age        by remember { mutableStateOf(profile.age.toString()) }
-    var nameError  by remember { mutableStateOf<String?>(null) }
-    var ageError   by remember { mutableStateOf<String?>(null) }
-    var isDirty    by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf(profile.name) }
+    var age by remember { mutableStateOf(profile.age.toString()) }
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var ageError by remember { mutableStateOf<String?>(null) }
+    var isDirty by remember { mutableStateOf(false) }
 
     fun attemptSave() {
         nameError = validateName(name)
-        ageError  = validateAge(age)
+        ageError = validateAge(age)
         if (nameError == null && ageError == null) {
             onSave(name.trim(), age.trim().toInt())
         }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .verticalScroll(rememberScrollState())
+        modifier =
+            Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(dimens.md))
 
@@ -104,58 +107,57 @@ fun EditProfileScreen(
 
         // Name field
         EditableTextField(
-            label       = "FULL NAME",
-            value       = name,
+            label = "FULL NAME",
+            value = name,
             placeholder = "Enter your full name",
-            errorText   = nameError,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                imeAction      = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-            ),
+            errorText = nameError,
+            keyboardOptions =
+                KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Next,
+                ),
+            keyboardActions =
+                KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) }),
             onValueChange = {
-                name     = it
-                isDirty  = true
+                name = it
+                isDirty = true
                 nameError = null
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(dimens.md))
 
         // Age field
         EditableTextField(
-            label       = "AGE",
-            value       = age,
+            label = "AGE",
+            value = age,
             placeholder = "Enter your age",
-            errorText   = ageError,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction    = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    focusManager.clearFocus()
-                    attemptSave()
-                }
-            ),
+            errorText = ageError,
+            keyboardOptions =
+                KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            keyboardActions =
+                KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                        attemptSave()
+                    }
+                ),
             onValueChange = {
                 // Only allow numeric input up to 3 digits
                 if (it.length <= 3 && it.all { c -> c.isDigit() }) {
-                    age     = it
+                    age = it
                     isDirty = true
                     ageError = null
                 }
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(dimens.grid25))
 
         HorizontalDivider(
-            modifier  = Modifier.padding(horizontal = dimens.grid25),
-            color     = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-            thickness = dimens.borderNormal
+            modifier = Modifier.padding(horizontal = dimens.grid25),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+            thickness = dimens.borderNormal,
         )
 
         Spacer(modifier = Modifier.height(dimens.grid25))
@@ -167,66 +169,57 @@ fun EditProfileScreen(
 
         Spacer(modifier = Modifier.height(dimens.md))
 
-        ReadOnlyField(
-            label = "MEMBER SINCE",
-            value = profile.memberSince
-        )
+        ReadOnlyField(label = "MEMBER SINCE", value = profile.memberSince)
 
         Spacer(modifier = Modifier.height(dimens.md))
 
         ReadOnlyField(
             label = "EMAIL",
             value = profile.email,
-            hint  = "Linked to your sign-in account"
+            hint = "Linked to your sign-in account",
         )
 
         Spacer(modifier = Modifier.height(dimens.grid3))
 
         // ── Save Button ───────────────────────────────────────────────────────
         Button(
-            onClick  = { attemptSave() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimens.grid25)
-                .height(dimens.buttonHeight),
-            shape    = RoundedCornerShape(dimens.radiusHuge),
-            colors   = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-            ),
-            enabled = isDirty
+            onClick = { attemptSave() },
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = dimens.grid25)
+                    .height(dimens.buttonHeight),
+            shape = RoundedCornerShape(dimens.radiusHuge),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                ),
+            enabled = isDirty,
         ) {
             Icon(
-                imageVector         = Icons.Outlined.Save,
-                contentDescription  = null,
-                modifier            = Modifier.size(dimens.iconSm)
+                imageVector = Icons.Outlined.Save,
+                contentDescription = null,
+                modifier = Modifier.size(dimens.iconSm),
             )
             Spacer(modifier = Modifier.width(dimens.sm))
-            Text(
-                text       = "Save Changes",
-                fontSize   = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text(text = "Save Changes", fontSize = 15.sp, fontWeight = FontWeight.Bold)
         }
 
         // ── Cancel Button ─────────────────────────────────────────────────────
         OutlinedButton(
-            onClick   = onCancel,
-            modifier  = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimens.grid25)
-                .padding(top = dimens.grid15)
-                .height(dimens.buttonHeight),
-            shape     = RoundedCornerShape(dimens.radiusHuge),
-            colors    = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            onClick = onCancel,
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = dimens.grid25)
+                    .padding(top = dimens.grid15)
+                    .height(dimens.buttonHeight),
+            shape = RoundedCornerShape(dimens.radiusHuge),
+            colors =
+                ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
         ) {
-            Text(
-                text       = "Cancel",
-                fontSize   = 15.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            Text(text = "Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(dimens.grid3))
@@ -236,38 +229,34 @@ fun EditProfileScreen(
 // ─── Top Bar ──────────────────────────────────────────────────────────────────
 
 @Composable
-private fun EditProfileTopBar(
-    onCancel: () -> Unit,
-    ) {
+private fun EditProfileTopBar(onCancel: () -> Unit) {
     val dimens = MaterialTheme.dimens
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimens.grid25),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = dimens.grid25),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimens.grid15)
+        horizontalArrangement = Arrangement.spacedBy(dimens.grid15),
     ) {
         // Back / close button
         IconButton(
-            onClick   = onCancel,
-            modifier  = Modifier
-                .size(dimens.grid45)
-                .clip(RoundedCornerShape(dimens.radiusMd))
-                .background(MaterialTheme.colorScheme.background)
+            onClick = onCancel,
+            modifier =
+                Modifier.size(dimens.grid45)
+                    .clip(RoundedCornerShape(dimens.radiusMd))
+                    .background(MaterialTheme.colorScheme.background),
         ) {
             Icon(
-                imageVector        = Icons.Outlined.ArrowBackIosNew,
+                imageVector = Icons.Outlined.ArrowBackIosNew,
                 contentDescription = "Back",
-                tint               = MaterialTheme.colorScheme.onBackground,
-                modifier           = Modifier.size(dimens.iconMd)
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.size(dimens.iconMd),
             )
         }
         Text(
-            text       = "Edit Profile",
-            fontSize   = 20.sp,
+            text = "Edit Profile",
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color      = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
@@ -279,33 +268,33 @@ private fun AvatarSection(initials: String) {
     val dimens = MaterialTheme.dimens
 
     Column(
-        modifier            = Modifier
-            .fillMaxWidth()
-            .padding(vertical = dimens.grid35),
+        modifier = Modifier.fillMaxWidth().padding(vertical = dimens.grid35),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(dimens.grid15)
+        verticalArrangement = Arrangement.spacedBy(dimens.grid15),
     ) {
         Box(contentAlignment = Alignment.BottomEnd) {
             // Avatar circle
             Box(
-                modifier = Modifier
-                    .size(dimens.grid9)
-                    .clip(CircleShape)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier.size(dimens.grid9)
+                        .clip(CircleShape)
+                        .background(
+                            brush =
+                                Brush.linearGradient(
+                                    colors =
+                                        listOf(
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.secondary,
+                                        )
+                                )
+                        ),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text       = initials,
-                    fontSize   = 30.sp,
+                    text = initials,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color      = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
@@ -319,42 +308,43 @@ private fun EditableBanner() {
     val dimens = MaterialTheme.dimens
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimens.grid25)
-            .clip(RoundedCornerShape(dimens.radiusLg))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(dimens.md),
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = dimens.grid25)
+                .clip(RoundedCornerShape(dimens.radiusLg))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(dimens.md),
         horizontalArrangement = Arrangement.spacedBy(dimens.grid125),
-        verticalAlignment     = Alignment.Top
+        verticalAlignment = Alignment.Top,
     ) {
         Box(
-            modifier = Modifier
-                .size(dimens.grid4)
-                .clip(RoundedCornerShape(dimens.radiusSm))
-                .background(MaterialTheme.colorScheme.outlineVariant),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier.size(dimens.grid4)
+                    .clip(RoundedCornerShape(dimens.radiusSm))
+                    .background(MaterialTheme.colorScheme.outlineVariant),
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector        = Icons.Outlined.Info,
+                imageVector = Icons.Outlined.Info,
                 contentDescription = null,
-                tint               = MaterialTheme.colorScheme.primary,
-                modifier           = Modifier.size(dimens.iconMd)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(dimens.iconMd),
             )
         }
         Column {
             Text(
-                text       = "What can you edit?",
-                fontSize   = 13.sp,
+                text = "What can you edit?",
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color      = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
             Spacer(modifier = Modifier.height(dimens.xxs))
             Text(
-                text       = "Only your name and age can be updated. Skin type and other details are set automatically by your scan history.",
-                fontSize   = 12.sp,
-                color      = MaterialTheme.colorScheme.onPrimaryContainer,
-                lineHeight = 18.sp
+                text =
+                    "Only your name and age can be updated. Skin type and other details are set automatically by your scan history.",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                lineHeight = 18.sp,
             )
         }
     }
@@ -367,12 +357,12 @@ private fun FieldSectionLabel(label: String) {
     val dimens = MaterialTheme.dimens
 
     Text(
-        text       = label,
-        fontSize   = 11.sp,
+        text = label,
+        fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 1.sp,
-        color      = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier   = Modifier.padding(horizontal = dimens.grid25)
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = dimens.grid25),
     )
 }
 
@@ -386,76 +376,75 @@ private fun EditableTextField(
     errorText: String?,
     keyboardOptions: KeyboardOptions,
     keyboardActions: KeyboardActions,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
-    val dimens    = MaterialTheme.dimens
-    val isError   = errorText != null
-    val tintColor = if (isError) MaterialTheme.colorScheme.error
-    else MaterialTheme.colorScheme.primary
+    val dimens = MaterialTheme.dimens
+    val isError = errorText != null
+    val tintColor =
+        if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
 
-    Column(
-        modifier = Modifier.padding(horizontal = dimens.grid25)
-    ) {
+    Column(modifier = Modifier.padding(horizontal = dimens.grid25)) {
         Text(
-            text          = label,
-            fontSize      = 12.sp,
-            fontWeight    = FontWeight.SemiBold,
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.3.sp,
-            color         = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier      = Modifier.padding(bottom = dimens.grid075)
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = dimens.grid075),
         )
         OutlinedTextField(
-            value         = value,
+            value = value,
             onValueChange = onValueChange,
-            modifier      = Modifier.fillMaxWidth(),
-            placeholder   = {
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
                 Text(
-                    text  = placeholder,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    text = placeholder,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
             },
-            trailingIcon  = {
+            trailingIcon = {
                 Icon(
-                    imageVector        = Icons.Outlined.Edit,
+                    imageVector = Icons.Outlined.Edit,
                     contentDescription = "Edit $label",
-                    tint               = tintColor,
-                    modifier           = Modifier.size(dimens.iconMd)
+                    tint = tintColor,
+                    modifier = Modifier.size(dimens.iconMd),
                 )
             },
-            isError         = isError,
+            isError = isError,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
-            singleLine      = true,
-            shape           = RoundedCornerShape(dimens.radiusMd),
-            colors          = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor     = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor   = MaterialTheme.colorScheme.outline,
-                errorBorderColor       = MaterialTheme.colorScheme.error,
-                focusedContainerColor  = MaterialTheme.colorScheme.background,
-                unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                cursorColor            = MaterialTheme.colorScheme.primary,
-                focusedTextColor       = MaterialTheme.colorScheme.onBackground,
-                unfocusedTextColor     = MaterialTheme.colorScheme.onBackground
-            )
+            singleLine = true,
+            shape = RoundedCornerShape(dimens.radiusMd),
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    errorBorderColor = MaterialTheme.colorScheme.error,
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                ),
         )
         // Inline error message
         if (isError) {
             Spacer(modifier = Modifier.height(dimens.xs))
             Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimens.xs)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimens.xs),
             ) {
                 Icon(
-                    imageVector        = Icons.Outlined.ErrorOutline,
+                    imageVector = Icons.Outlined.ErrorOutline,
                     contentDescription = null,
-                    tint               = MaterialTheme.colorScheme.error,
-                    modifier           = Modifier.size(dimens.iconXs)
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(dimens.iconXs),
                 )
                 Text(
-                    text       = errorText!!,
-                    fontSize   = 11.sp,
-                    color      = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Medium
+                    text = errorText!!,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Medium,
                 )
             }
         }
@@ -465,63 +454,57 @@ private fun EditableTextField(
 // ─── Read-only Field ──────────────────────────────────────────────────────────
 
 @Composable
-private fun ReadOnlyField(
-    label: String,
-    value: String,
-    hint: String? = null
-) {
+private fun ReadOnlyField(label: String, value: String, hint: String? = null) {
     val dimens = MaterialTheme.dimens
 
-    Column(
-        modifier = Modifier.padding(horizontal = dimens.grid25)
-    ) {
+    Column(modifier = Modifier.padding(horizontal = dimens.grid25)) {
         Text(
-            text          = label,
-            fontSize      = 12.sp,
-            fontWeight    = FontWeight.SemiBold,
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.3.sp,
-            color         = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier      = Modifier.padding(bottom = dimens.grid075)
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = dimens.grid075),
         )
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(dimens.radiusMd))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(horizontal = dimens.md, vertical = dimens.grid175),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .clip(RoundedCornerShape(dimens.radiusMd))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = dimens.md, vertical = dimens.grid175),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment     = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text       = value,
-                fontSize   = 15.sp,
+                text = value,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                color      = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Icon(
-                imageVector        = Icons.Outlined.Lock,
+                imageVector = Icons.Outlined.Lock,
                 contentDescription = "Read-only",
-                tint               = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                modifier           = Modifier.size(dimens.iconSm)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(dimens.iconSm),
             )
         }
         if (hint != null) {
             Spacer(modifier = Modifier.height(dimens.xs))
             Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimens.xs)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimens.xs),
             ) {
                 Icon(
-                    imageVector        = Icons.Outlined.Info,
+                    imageVector = Icons.Outlined.Info,
                     contentDescription = null,
-                    tint               = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    modifier           = Modifier.size(dimens.iconXs)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.size(dimens.iconXs),
                 )
                 Text(
-                    text       = hint,
-                    fontSize   = 11.sp,
-                    color      = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    fontWeight = FontWeight.Medium
+                    text = hint,
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Medium,
                 )
             }
         }
@@ -533,7 +516,5 @@ private fun ReadOnlyField(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun EditProfileScreenPreview() {
-    DermAssistTheme {
-        EditProfileScreen()
-    }
+    DermAssistTheme { EditProfileScreen() }
 }
