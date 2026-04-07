@@ -81,9 +81,8 @@ fun AppNavGraph() {
         composable(Screen.Main.route) {
             MainScreen(
                 onEditProfileClick = { navController.navigate(Screen.EditProfile.route) },
-                onPrivacyAndDataClick = {
-                    navController.navigate(Screen.PrivacyPolicy.route)
-                })
+                onPrivacyAndDataClick = { navController.navigate(Screen.PrivacyPolicy.route) },
+            )
         }
         composable(Screen.TermsAndConditions.route) {
             TermsAndConditionsScreen(onBackClick = { navController.popBackStack() })

@@ -116,7 +116,7 @@ fun MainScreen(onEditProfileClick: () -> Unit, onPrivacyAndDataClick: () -> Unit
                 ProfileScreen(
                     onEditProfileClick = onEditProfileClick,
                     onPrivacyAndDataClick = onPrivacyAndDataClick,
-                    )
+                )
             }
         }
     }
