@@ -36,6 +36,7 @@ import com.ehealth.dermassist.ui.theme.*
 @Composable
 fun ProfileScreen(
     onEditProfileClick: () -> Unit,
+    onPrivacyAndDataClick: () -> Unit,
     viewModel: ProfileScreenViewModel = hiltViewModel(),
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -183,6 +184,7 @@ fun ProfileScreen(
                     iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     iconColor = MaterialTheme.colorScheme.tertiary,
                     label = "Privacy & Data",
+                    onClick = onPrivacyAndDataClick,
                 )
             }
 
@@ -337,5 +339,5 @@ fun ProfileMenuItem(
 @Preview
 @Composable
 private fun ProfileScreenPreview() {
-    DermAssistTheme { ProfileScreen(onEditProfileClick = {}) }
+    DermAssistTheme { ProfileScreen(onEditProfileClick = {}, onPrivacyAndDataClick = {}) }
 }

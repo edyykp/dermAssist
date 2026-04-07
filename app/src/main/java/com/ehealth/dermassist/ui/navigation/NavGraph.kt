@@ -23,7 +23,6 @@ import com.ehealth.dermassist.ui.features.main.MainScreen
 import com.ehealth.dermassist.ui.features.onboarding.OnboardingScreen
 import com.ehealth.dermassist.ui.features.profile.editprofile.EditProfileScreen
 import com.ehealth.dermassist.ui.features.splash.SplashScreen
-import com.ehealth.dermassist.ui.theme.*
 
 @Composable
 fun AppNavGraph() {
@@ -80,7 +79,11 @@ fun AppNavGraph() {
             )
         }
         composable(Screen.Main.route) {
-            MainScreen(onEditProfileClick = { navController.navigate(Screen.EditProfile.route) })
+            MainScreen(
+                onEditProfileClick = { navController.navigate(Screen.EditProfile.route) },
+                onPrivacyAndDataClick = {
+                    navController.navigate(Screen.PrivacyPolicy.route)
+                })
         }
         composable(Screen.TermsAndConditions.route) {
             TermsAndConditionsScreen(onBackClick = { navController.popBackStack() })
