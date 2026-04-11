@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 
 @Composable
 fun LoadingOverlay(
@@ -23,7 +24,9 @@ fun LoadingOverlay(
             modifier
                 .fillMaxSize()
                 .background(backgroundColor)
-                // Consume all click events to prevent interaction with underlying UI
+                // Block all pointer input to underlying layers
+                .pointerInput(Unit) {}
+                // Consume clicks to prevent them from passing through
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,

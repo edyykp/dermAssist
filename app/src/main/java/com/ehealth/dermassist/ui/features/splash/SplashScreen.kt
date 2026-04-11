@@ -1,7 +1,6 @@
 package com.ehealth.dermassist.ui.features.splash
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -17,10 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -183,51 +185,67 @@ fun SplashScreen(
 
                 Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
 
-                // Terms
+                // Terms with Clickable segments using modern LinkAnnotation
                 val annotatedString = buildAnnotatedString {
-                    append("By continuing, you agree to our ")
-                    pushStringAnnotation(tag = "TERMS", annotation = "terms")
                     withStyle(
-                        style =
-                            SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Medium,
-                            )
+                        style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    ) {
+                        append("By continuing, you agree to our ")
+                    }
+
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = "TERMS",
+                            styles =
+                                TextLinkStyles(
+                                    style =
+                                        SpanStyle(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.Medium,
+                                        )
+                                ),
+                            linkInteractionListener = { onTermsClick() },
+                        )
                     ) {
                         append("Terms of Service")
                     }
-                    pop()
-                    append(" and ")
-                    pushStringAnnotation(tag = "PRIVACY", annotation = "privacy")
+
                     withStyle(
-                        style =
-                            SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Medium,
-                            )
+                        style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    ) {
+                        append(" and ")
+                    }
+
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            tag = "PRIVACY",
+                            styles =
+                                TextLinkStyles(
+                                    style =
+                                        SpanStyle(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.Medium,
+                                        )
+                                ),
+                            linkInteractionListener = { onPrivacyClick() },
+                        )
                     ) {
                         append("Privacy Policy")
                     }
-                    pop()
-                    append(".")
+
+                    withStyle(
+                        style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    ) {
+                        append(".")
+                    }
                 }
 
                 Text(
                     text = annotatedString,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    modifier =
-                        Modifier.clickable {
-                            // This is a simple implementation. For production use ClickableText.
-                            // Since I don't want to overcomplicate, I'll just alternate for demo or
-                            // use Offset
-                        },
+                    modifier = Modifier.fillMaxWidth(),
                 )
-
-                // For now, let's use a simpler way to trigger clicks for terms/privacy if needed,
-                // or just rely on the user clicking the general area.
-                // Re-implementing with proper ClickableText if possible or keeping it simple.
             }
         }
 

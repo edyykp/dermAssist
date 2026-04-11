@@ -32,32 +32,31 @@ import com.ehealth.dermassist.ui.theme.*
 import java.io.File
 
 @Composable
-fun HomeScreen(
-    userName: String = "Sarah",
-    viewModel: HomeViewModel = hiltViewModel(),
-) {
+fun HomeScreen(userName: String = "Sarah", viewModel: HomeViewModel = hiltViewModel()) {
     val dimens = MaterialTheme.dimens
     val context = LocalContext.current
-    
-    var tempUri by remember { mutableStateOf<Uri?>(null) }
-    
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { success ->
-            if (success) {
-                viewModel.processImage(tempUri)
-            }
-        }
-    )
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            if (uri != null) {
-                viewModel.processImage(uri)
-            }
-        }
-    )
+    var tempUri by remember { mutableStateOf<Uri?>(null) }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicture(),
+            onResult = { success ->
+                if (success) {
+                    viewModel.processImage(tempUri)
+                }
+            },
+        )
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+            onResult = { uri ->
+                if (uri != null) {
+                    viewModel.processImage(uri)
+                }
+            },
+        )
 
     Column(
         modifier =
@@ -75,17 +74,12 @@ fun HomeScreen(
         HeroScanCard(
             onTakePhoto = {
                 val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-                val uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    file
-                )
+                val uri =
+                    FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
                 tempUri = uri
                 cameraLauncher.launch(uri)
             },
-            onUploadGallery = {
-                galleryLauncher.launch("image/*")
-            }
+            onUploadGallery = { galleryLauncher.launch("image/*") },
         )
 
         Spacer(modifier = Modifier.height(dimens.lg))
