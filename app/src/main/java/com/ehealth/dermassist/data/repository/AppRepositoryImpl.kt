@@ -5,14 +5,17 @@ import com.ehealth.dermassist.domain.repository.AppRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class AppRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) :
-    AppRepository {
+class AppRepositoryImpl @Inject constructor(
+    private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
+) : AppRepository {
 
     override fun getUser(): Flow<User?> = callbackFlow {
         val listener =
@@ -68,5 +71,27 @@ class AppRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAu
 
     override suspend fun logout() {
         firebaseAuth.signOut()
+    }
+
+    override suspend fun clearUserData(): Result<Unit> {
+        return try {
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                val userId = user.uid
+                // 1. Delete user document from Firestore
+                //TODO
+              //  firestore.collection("users").document(userId).delete().await()
+                
+                // 2. Delete user from Firebase Auth
+                // Note: This may require a recent login for security reasons.
+                user.delete().await()
+                
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("User not logged in"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

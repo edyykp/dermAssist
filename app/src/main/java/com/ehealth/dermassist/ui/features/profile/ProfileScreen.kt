@@ -15,11 +15,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +36,7 @@ fun ProfileScreen(
     viewModel: ProfileScreenViewModel = hiltViewModel(),
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showClearDataDialog by remember { mutableStateOf(false) }
 
     if (showLogoutDialog) {
         ConfirmExitDialog(
@@ -50,6 +47,20 @@ fun ProfileScreen(
                 showLogoutDialog = false
             },
             onDismiss = { showLogoutDialog = false },
+        )
+    }
+
+    if (showClearDataDialog) {
+        ConfirmExitDialog(
+            title = "Clear All Data",
+            message = "This will permanently delete your user profile and all associated data from our servers. This action cannot be undone.",
+            onConfirm = {
+                viewModel.clearUserData {
+                    // Success handling (e.g. show a snackbar or navigate)
+                }
+                showClearDataDialog = false
+            },
+            onDismiss = { showClearDataDialog = false },
         )
     }
 
@@ -197,6 +208,7 @@ fun ProfileScreen(
                     label = "Clear All Data",
                     labelColor = MaterialTheme.colorScheme.error,
                     showArrow = false,
+                    onClick = { showClearDataDialog = true }
                 )
                 ProfileMenuItem(
                     icon = Icons.AutoMirrored.Outlined.ExitToApp,

@@ -13,4 +13,6 @@ interface AppRepository {
     suspend fun signUpWithEmail(email: String, pass: String, name: String): Result<Unit>
 
     suspend fun logout()
+
+    suspend fun clearUserData(): Result<Unit>
 }
