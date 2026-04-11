@@ -1,5 +1,8 @@
 package com.ehealth.dermassist.ui.features.home
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,24 +16,48 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.ui.theme.*
+import java.io.File
 
 @Composable
 fun HomeScreen(
     userName: String = "Sarah",
-    onTakePhoto: () -> Unit = {},
-    onUploadGallery: () -> Unit = {},
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val dimens = MaterialTheme.dimens
+    val context = LocalContext.current
+    
+    var tempUri by remember { mutableStateOf<Uri?>(null) }
+    
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                viewModel.processImage(tempUri)
+            }
+        }
+    )
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.processImage(uri)
+            }
+        }
+    )
 
     Column(
         modifier =
@@ -45,7 +72,21 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(dimens.grid25))
 
-        HeroScanCard(onTakePhoto = onTakePhoto, onUploadGallery = onUploadGallery)
+        HeroScanCard(
+            onTakePhoto = {
+                val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+                tempUri = uri
+                cameraLauncher.launch(uri)
+            },
+            onUploadGallery = {
+                galleryLauncher.launch("image/*")
+            }
+        )
 
         Spacer(modifier = Modifier.height(dimens.lg))
 
