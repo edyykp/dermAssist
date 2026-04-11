@@ -102,7 +102,9 @@ fun LoginScreen(
             },
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         ) { innerPadding ->
-            Column(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding()) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding()
+            ) {
                 Column(
                     modifier =
                         Modifier.weight(1f)
@@ -190,7 +192,8 @@ fun LoginScreen(
                             modifier = Modifier.padding(bottom = MaterialTheme.dimens.grid2),
                             isError = fullName.isNotEmpty() && !isFullNameValid,
                             errorMessage =
-                                if (fullName.isNotEmpty() && !isFullNameValid) "Name cannot be empty"
+                                if (fullName.isNotEmpty() && !isFullNameValid)
+                                    "Name cannot be empty"
                                 else null,
                             keyboardOptions =
                                 KeyboardOptions(
@@ -312,7 +315,7 @@ fun LoginScreen(
                                                 email,
                                                 password,
                                                 fullName,
-                                                onSuccess
+                                                onSuccess,
                                             )
                                         }
                                     }

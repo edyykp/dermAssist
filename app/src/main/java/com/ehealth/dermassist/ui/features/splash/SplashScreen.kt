@@ -17,16 +17,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ehealth.dermassist.R
 import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.components.GoogleButton
 import com.ehealth.dermassist.ui.components.LoadingOverlay
@@ -141,7 +138,10 @@ fun SplashScreen(
                     maxItemsInEachRow = 2,
                 ) {
                     PillItem(color = MaterialTheme.colorScheme.primary, text = "AI-powered scan")
-                    PillItem(color = MaterialTheme.colorScheme.secondary, text = "Condition detection")
+                    PillItem(
+                        color = MaterialTheme.colorScheme.secondary,
+                        text = "Condition detection",
+                    )
                     PillItem(color = MaterialTheme.colorScheme.tertiary, text = "Progress tracking")
                 }
 
@@ -217,13 +217,15 @@ fun SplashScreen(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.clickable {
-                        // This is a simple implementation. For production use ClickableText.
-                        // Since I don't want to overcomplicate, I'll just alternate for demo or use Offset
-                    }
+                    modifier =
+                        Modifier.clickable {
+                            // This is a simple implementation. For production use ClickableText.
+                            // Since I don't want to overcomplicate, I'll just alternate for demo or
+                            // use Offset
+                        },
                 )
-                
-                // For now, let's use a simpler way to trigger clicks for terms/privacy if needed, 
+
+                // For now, let's use a simpler way to trigger clicks for terms/privacy if needed,
                 // or just rely on the user clicking the general area.
                 // Re-implementing with proper ClickableText if possible or keeping it simple.
             }

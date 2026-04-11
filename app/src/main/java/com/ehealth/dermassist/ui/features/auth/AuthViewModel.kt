@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.domain.repository.AppRepository
 import com.ehealth.dermassist.domain.usecase.SignInWithGoogleUseCase
+import com.ehealth.dermassist.ui.LoadingStateDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,10 +24,10 @@ class AuthViewModel
 constructor(
     private val repository: AppRepository,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val loadingStateDelegate: LoadingStateDelegate,
 ) : ViewModel() {
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = loadingStateDelegate.isLoading
 
     private val _authError = MutableStateFlow<String?>(null)
     val authError: StateFlow<String?> = _authError.asStateFlow()
@@ -41,10 +42,8 @@ constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun handleGoogleSignIn(context: Context, onSuccess: () -> Unit) {
-        if (_isLoading.value) return
-
         viewModelScope.launch {
-            _isLoading.value = true
+            loadingStateDelegate.setLoading(true)
             _authError.value = null
             val result = signInWithGoogleUseCase(context)
             if (result.isSuccess) {
@@ -52,13 +51,13 @@ constructor(
             } else {
                 _authError.value = result.exceptionOrNull()?.message ?: "Google Sign-In failed"
             }
-            _isLoading.value = false
+            loadingStateDelegate.setLoading(false)
         }
     }
 
     fun login(email: String, pass: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
+            loadingStateDelegate.setLoading(true)
             _authError.value = null
             val result = repository.loginWithEmail(email, pass)
             if (result.isSuccess) {
@@ -66,13 +65,13 @@ constructor(
             } else {
                 _authError.value = result.exceptionOrNull()?.message ?: "Login failed"
             }
-            _isLoading.value = false
+            loadingStateDelegate.setLoading(false)
         }
     }
 
     fun signUp(email: String, pass: String, name: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
+            loadingStateDelegate.setLoading(true)
             _authError.value = null
             val result = repository.signUpWithEmail(email, pass, name)
             if (result.isSuccess) {
@@ -80,7 +79,7 @@ constructor(
             } else {
                 _authError.value = result.exceptionOrNull()?.message ?: "Sign up failed"
             }
-            _isLoading.value = false
+            loadingStateDelegate.setLoading(false)
         }
     }
 

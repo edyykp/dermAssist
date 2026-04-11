@@ -3,18 +3,21 @@ package com.ehealth.dermassist.ui.features.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ehealth.dermassist.domain.repository.AppRepository
+import com.ehealth.dermassist.ui.LoadingStateDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ProfileScreenViewModel @Inject constructor(private val repository: AppRepository) :
-    ViewModel() {
+class ProfileScreenViewModel
+@Inject
+constructor(
+    private val repository: AppRepository,
+    private val loadingStateDelegate: LoadingStateDelegate,
+) : ViewModel() {
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = loadingStateDelegate.isLoading
 
     fun logout() {
         viewModelScope.launch { repository.logout() }
@@ -22,12 +25,12 @@ class ProfileScreenViewModel @Inject constructor(private val repository: AppRepo
 
     fun clearUserData(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
+            loadingStateDelegate.setLoading(true)
             val result = repository.clearUserData()
             if (result.isSuccess) {
                 onSuccess()
             }
-            _isLoading.value = false
+            loadingStateDelegate.setLoading(false)
         }
     }
 }

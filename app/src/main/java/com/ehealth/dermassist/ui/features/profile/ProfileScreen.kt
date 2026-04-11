@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.ui.components.ConfirmExitDialog
-import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.theme.*
 
 @Composable
@@ -38,7 +37,6 @@ fun ProfileScreen(
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
-    val isLoading by viewModel.isLoading.collectAsState()
 
     if (showLogoutDialog) {
         ConfirmExitDialog(
@@ -67,172 +65,165 @@ fun ProfileScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-            // Content
-            Column(
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+        // Content
+        Column(
+            modifier =
+                Modifier.weight(1f)
+                    .padding(horizontal = MaterialTheme.dimens.md)
+                    .verticalScroll(rememberScrollState())
+        ) {
+            // Header
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.lg)) {
+                Text(
+                    text = "Profile",
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 22.sp,
+                )
+            }
+
+            // Profile Card
+            Box(
                 modifier =
-                    Modifier.weight(1f)
-                        .padding(horizontal = MaterialTheme.dimens.md)
-                        .verticalScroll(rememberScrollState())
+                    Modifier.fillMaxWidth()
+                        .clip(RoundedCornerShape(MaterialTheme.dimens.radiusXxl))
+                        .background(
+                            brush =
+                                Brush.linearGradient(
+                                    colors =
+                                        listOf(
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                            Color(0xFFE4EEF9),
+                                        )
+                                )
+                        )
+                        .padding(MaterialTheme.dimens.md)
             ) {
-                // Header
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.lg)) {
-                    Text(
-                        text = "Profile",
-                        style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 22.sp,
-                    )
-                }
-
-                // Profile Card
-                Box(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .clip(RoundedCornerShape(MaterialTheme.dimens.radiusXxl))
-                            .background(
-                                brush =
-                                    Brush.linearGradient(
-                                        colors =
-                                            listOf(
-                                                MaterialTheme.colorScheme.surfaceVariant,
-                                                Color(0xFFE4EEF9),
-                                            )
-                                    )
-                            )
-                            .padding(MaterialTheme.dimens.md)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        // Avatar
-                        Box(
-                            modifier =
-                                Modifier.size(MaterialTheme.dimens.avatarSize)
-                                    .clip(CircleShape)
-                                    .background(
-                                        brush =
-                                            Brush.linearGradient(
-                                                colors =
-                                                    listOf(
-                                                        MaterialTheme.colorScheme.primary,
-                                                        MaterialTheme.colorScheme.secondary,
-                                                    )
-                                            )
-                                    )
-                                    .border(
-                                        MaterialTheme.dimens.borderExtraThick,
-                                        MaterialTheme.colorScheme.onPrimary,
-                                        CircleShape,
-                                    ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "SJ",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(MaterialTheme.dimens.md))
-
-                        // Info
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Sarah Johnson",
-                                style = MaterialTheme.typography.labelLarge,
-                                fontSize = 18.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Text(
-                                text = "Age 28 · Joined Jan 2026",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 13.sp,
-                            )
-                        }
-                    }
-
-                    // Edit Button
-                    Surface(
+                    // Avatar
+                    Box(
                         modifier =
-                            Modifier.align(Alignment.TopEnd).clickable { onEditProfileClick() },
-                        shape = RoundedCornerShape(MaterialTheme.dimens.radiusMd),
-                        color = MaterialTheme.colorScheme.onPrimary,
+                            Modifier.size(MaterialTheme.dimens.avatarSize)
+                                .clip(CircleShape)
+                                .background(
+                                    brush =
+                                        Brush.linearGradient(
+                                            colors =
+                                                listOf(
+                                                    MaterialTheme.colorScheme.primary,
+                                                    MaterialTheme.colorScheme.secondary,
+                                                )
+                                        )
+                                )
+                                .border(
+                                    MaterialTheme.dimens.borderExtraThick,
+                                    MaterialTheme.colorScheme.onPrimary,
+                                    CircleShape,
+                                ),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "Edit",
-                            modifier =
-                                Modifier.padding(
-                                    horizontal = MaterialTheme.dimens.md,
-                                    vertical = MaterialTheme.dimens.sm,
-                                ),
-                            style = MaterialTheme.typography.labelSmall,
+                            text = "SJ",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 12.sp,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimens.md))
+
+                    // Info
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Sarah Johnson",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontSize = 18.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = "Age 28 · Joined Jan 2026",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 13.sp,
                         )
                     }
                 }
 
-                // Stats Row
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.md),
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sm),
+                // Edit Button
+                Surface(
+                    modifier = Modifier.align(Alignment.TopEnd).clickable { onEditProfileClick() },
+                    shape = RoundedCornerShape(MaterialTheme.dimens.radiusMd),
+                    color = MaterialTheme.colorScheme.onPrimary,
                 ) {
-                    StatCard(modifier = Modifier.weight(1f), number = "12", label = "Total Scans")
-                }
-
-                // Account Section
-                SectionCard(title = "Account") {
-                    ProfileMenuItem(
-                        icon = Icons.Outlined.Person,
-                        iconContainerColor = MaterialTheme.colorScheme.inversePrimary,
-                        iconColor = MaterialTheme.colorScheme.primary,
-                        label = "Edit Profile",
-                        onClick = onEditProfileClick,
-                    )
-                    ProfileMenuItem(
-                        icon = Icons.Outlined.Lock,
-                        iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        iconColor = MaterialTheme.colorScheme.tertiary,
-                        label = "Privacy & Data",
-                        onClick = onPrivacyAndDataClick,
+                    Text(
+                        text = "Edit",
+                        modifier =
+                            Modifier.padding(
+                                horizontal = MaterialTheme.dimens.md,
+                                vertical = MaterialTheme.dimens.sm,
+                            ),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 12.sp,
                     )
                 }
-
-                // Data & Account Section
-                SectionCard(title = "Data & Account") {
-                    ProfileMenuItem(
-                        icon = Icons.Outlined.Delete,
-                        iconContainerColor = MaterialTheme.colorScheme.errorContainer,
-                        iconColor = MaterialTheme.colorScheme.error,
-                        label = "Clear All Data",
-                        labelColor = MaterialTheme.colorScheme.error,
-                        showArrow = false,
-                        onClick = { showClearDataDialog = true },
-                    )
-                    ProfileMenuItem(
-                        icon = Icons.AutoMirrored.Outlined.ExitToApp,
-                        iconContainerColor = MaterialTheme.colorScheme.errorContainer,
-                        iconColor = MaterialTheme.colorScheme.error,
-                        label = "Log Out",
-                        labelColor = MaterialTheme.colorScheme.error,
-                        isLast = true,
-                        showArrow = false,
-                        onClick = { showLogoutDialog = true },
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
             }
-        }
 
-        if (isLoading) {
-            LoadingOverlay()
+            // Stats Row
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.dimens.md),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sm),
+            ) {
+                StatCard(modifier = Modifier.weight(1f), number = "12", label = "Total Scans")
+            }
+
+            // Account Section
+            SectionCard(title = "Account") {
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Person,
+                    iconContainerColor = MaterialTheme.colorScheme.inversePrimary,
+                    iconColor = MaterialTheme.colorScheme.primary,
+                    label = "Edit Profile",
+                    onClick = onEditProfileClick,
+                )
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Lock,
+                    iconContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    iconColor = MaterialTheme.colorScheme.tertiary,
+                    label = "Privacy & Data",
+                    onClick = onPrivacyAndDataClick,
+                )
+            }
+
+            // Data & Account Section
+            SectionCard(title = "Data & Account") {
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Delete,
+                    iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                    iconColor = MaterialTheme.colorScheme.error,
+                    label = "Clear All Data",
+                    labelColor = MaterialTheme.colorScheme.error,
+                    showArrow = false,
+                    onClick = { showClearDataDialog = true },
+                )
+                ProfileMenuItem(
+                    icon = Icons.AutoMirrored.Outlined.ExitToApp,
+                    iconContainerColor = MaterialTheme.colorScheme.errorContainer,
+                    iconColor = MaterialTheme.colorScheme.error,
+                    label = "Log Out",
+                    labelColor = MaterialTheme.colorScheme.error,
+                    isLast = true,
+                    showArrow = false,
+                    onClick = { showLogoutDialog = true },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.md))
         }
     }
 }

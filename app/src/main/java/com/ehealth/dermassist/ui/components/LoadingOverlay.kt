@@ -16,22 +16,21 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun LoadingOverlay(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.Black.copy(alpha = 0.3f)
+    backgroundColor: Color = Color.Black.copy(alpha = 0.3f),
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            // Consume all click events to prevent interaction with underlying UI
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = {}
-            ),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                // Consume all click events to prevent interaction with underlying UI
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {},
+                ),
+        contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary
-        )
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
     }
 }
