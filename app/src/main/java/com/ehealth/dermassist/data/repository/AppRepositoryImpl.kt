@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class AppRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
-) : AppRepository {
+class AppRepositoryImpl
+@Inject
+constructor(private val firebaseAuth: FirebaseAuth, private val firestore: FirebaseFirestore) :
+    AppRepository {
 
     override fun getUser(): Flow<User?> = callbackFlow {
         val listener =
@@ -79,13 +79,13 @@ class AppRepositoryImpl @Inject constructor(
             if (user != null) {
                 val userId = user.uid
                 // 1. Delete user document from Firestore
-                //TODO
-              //  firestore.collection("users").document(userId).delete().await()
-                
+                // TODO
+                //  firestore.collection("users").document(userId).delete().await()
+
                 // 2. Delete user from Firebase Auth
                 // Note: This may require a recent login for security reasons.
                 user.delete().await()
-                
+
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("User not logged in"))
