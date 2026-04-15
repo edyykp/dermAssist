@@ -28,11 +28,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.ui.theme.*
 import java.io.File
 
 @Composable
-fun HomeScreen(userName: String = "Sarah", viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
     val dimens = MaterialTheme.dimens
     val context = LocalContext.current
 
@@ -67,7 +68,7 @@ fun HomeScreen(userName: String = "Sarah", viewModel: HomeViewModel = hiltViewMo
     ) {
         Spacer(modifier = Modifier.height(dimens.md))
 
-        HomeHeader(userName = userName)
+        HomeHeader(user = user)
 
         Spacer(modifier = Modifier.height(dimens.grid25))
 
@@ -96,7 +97,7 @@ fun HomeScreen(userName: String = "Sarah", viewModel: HomeViewModel = hiltViewMo
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 @Composable
-private fun HomeHeader(userName: String) {
+private fun HomeHeader(user: User? = null) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -109,7 +110,7 @@ private fun HomeHeader(userName: String) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                text = "$userName 👋",
+                text = "${user?.name} 👋",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -133,7 +134,7 @@ private fun HomeHeader(userName: String) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = userName.take(2).uppercase(),
+                text = user?.getInitials()?.uppercase() ?: "",
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,

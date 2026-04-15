@@ -32,7 +32,6 @@ val sampleProfile =
         id = "random_UUID",
         name = "Sarah Johnson",
         age = 28,
-        skinType = "Combination · Sensitive",
         memberSince = "January 2026",
         email = "sarah@example.com",
     )

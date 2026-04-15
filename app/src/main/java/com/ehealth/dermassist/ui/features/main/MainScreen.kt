@@ -30,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.ui.MainViewModel
 import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.features.history.HistoryScreen
@@ -40,6 +41,7 @@ import com.ehealth.dermassist.ui.navigation.Screen
 
 @Composable
 fun MainScreen(
+    user: User? = null,
     onEditProfileClick: () -> Unit,
     onPrivacyAndDataClick: () -> Unit,
     mainViewModel: MainViewModel = hiltViewModel(),
@@ -122,13 +124,14 @@ fun MainScreen(
                 startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding),
             ) {
-                composable(Screen.Home.route) { HomeScreen() }
+                composable(Screen.Home.route) { HomeScreen(user) }
                 composable(Screen.Report.route) {
                     ReportScreen(onRescanClick = { navController.navigate(Screen.Home.route) })
                 }
                 composable(Screen.History.route) { HistoryScreen() }
                 composable(Screen.Profile.route) {
                     ProfileScreen(
+                        user = user,
                         onEditProfileClick = onEditProfileClick,
                         onPrivacyAndDataClick = onPrivacyAndDataClick,
                     )

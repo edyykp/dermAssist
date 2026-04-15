@@ -21,27 +21,71 @@ constructor(private val firebaseAuth: FirebaseAuth, private val firestore: Fireb
         val listener =
             FirebaseAuth.AuthStateListener { auth ->
                 val firebaseUser = auth.currentUser
-                val user =
-                    firebaseUser?.let {
-                        User(
-                            id = it.uid,
-                            email = it.email ?: "",
-                            name = it.displayName ?: "",
-                            age = 23,
-                            skinType = "Redness",
-                            memberSince = "23 Aug 2023",
-                        )
+
+                if (firebaseUser == null) {
+                    trySend(null)
+                    return@AuthStateListener
+                }
+
+                val userId = firebaseUser.uid
+
+                // 🔥 Listen to Firestore user document
+                val registration =
+                    firestore.collection("users").document(userId).addSnapshotListener { snapshot, _
+                        ->
+                        if (snapshot != null && snapshot.exists()) {
+                            val age = snapshot.getLong("age")?.toInt()
+                            val memberSinceMillis = snapshot.getLong("memberSince")
+
+                            val memberSince =
+                                memberSinceMillis?.let {
+                                    val format =
+                                        java.text.SimpleDateFormat("MMM yyyy", java.util.Locale.US)
+                                    format.format(java.util.Date(it))
+                                } ?: ""
+
+                            val user =
+                                User(
+                                    id = userId,
+                                    email = firebaseUser.email ?: "",
+                                    name = firebaseUser.displayName ?: "",
+                                    age = age,
+                                    memberSince = memberSince,
+                                )
+
+                            trySend(user)
+                        }
                     }
-                trySend(user)
             }
+
         firebaseAuth.addAuthStateListener(listener)
+
         awaitClose { firebaseAuth.removeAuthStateListener(listener) }
     }
 
     override suspend fun signInWithGoogle(idToken: String): Result<Unit> {
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(credential).await()
+            val result = firebaseAuth.signInWithCredential(credential).await()
+
+            val user = result.user ?: throw Exception("User null")
+
+            val userRef = firestore.collection("users").document(user.uid)
+            val snapshot = userRef.get().await()
+
+            // 🔥 If user does NOT exist → create it
+            if (!snapshot.exists()) {
+                val userData =
+                    mapOf(
+                        "email" to (user.email ?: ""),
+                        "name" to (user.displayName ?: ""),
+                        "age" to null,
+                        "memberSince" to System.currentTimeMillis(),
+                    )
+
+                userRef.set(userData).await()
+            }
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -60,9 +104,25 @@ constructor(private val firebaseAuth: FirebaseAuth, private val firestore: Fireb
     override suspend fun signUpWithEmail(email: String, pass: String, name: String): Result<Unit> {
         return try {
             val result = firebaseAuth.createUserWithEmailAndPassword(email, pass).await()
-            val user = result.user
+
+            val user = result.user ?: throw Exception("User null")
+
+            // Update display name
             val profileUpdates = UserProfileChangeRequest.Builder().setDisplayName(name).build()
-            user?.updateProfile(profileUpdates)?.await()
+
+            user.updateProfile(profileUpdates).await()
+
+            // 🔥 Save extra data in Firestore
+            val userData =
+                mapOf(
+                    "email" to email,
+                    "name" to name,
+                    "age" to null,
+                    "memberSince" to System.currentTimeMillis(),
+                )
+
+            firestore.collection("users").document(user.uid).set(userData).await()
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -78,12 +138,8 @@ constructor(private val firebaseAuth: FirebaseAuth, private val firestore: Fireb
             val user = firebaseAuth.currentUser
             if (user != null) {
                 val userId = user.uid
-                // 1. Delete user document from Firestore
-                // TODO
-                //  firestore.collection("users").document(userId).delete().await()
 
-                // 2. Delete user from Firebase Auth
-                // Note: This may require a recent login for security reasons.
+                firestore.collection("users").document(userId).delete().await()
                 user.delete().await()
 
                 Result.success(Unit)

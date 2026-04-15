@@ -3,8 +3,7 @@ package com.ehealth.dermassist.domain.model
 data class User(
     val id: String,
     val name: String,
-    val age: Int,
-    val skinType: String,
+    val age: Int? = null,
     val memberSince: String,
     val email: String,
 ) {

@@ -29,6 +29,7 @@ fun AppNavGraph() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = hiltViewModel()
     val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+    val user by authViewModel.user.collectAsState()
 
     if (isLoggedIn == null) {
         Box(
@@ -80,6 +81,7 @@ fun AppNavGraph() {
         }
         composable(Screen.Main.route) {
             MainScreen(
+                user = user,
                 onEditProfileClick = { navController.navigate(Screen.EditProfile.route) },
                 onPrivacyAndDataClick = { navController.navigate(Screen.PrivacyPolicy.route) },
             )

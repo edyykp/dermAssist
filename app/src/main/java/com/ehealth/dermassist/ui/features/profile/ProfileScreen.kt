@@ -26,11 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.ui.components.ConfirmExitDialog
 import com.ehealth.dermassist.ui.theme.*
 
 @Composable
 fun ProfileScreen(
+    user: User? = null,
     onEditProfileClick: () -> Unit,
     onPrivacyAndDataClick: () -> Unit,
     viewModel: ProfileScreenViewModel = hiltViewModel(),
@@ -127,7 +129,7 @@ fun ProfileScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "SJ",
+                            text = user?.getInitials()?.uppercase() ?: "",
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
@@ -139,13 +141,14 @@ fun ProfileScreen(
                     // Info
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Sarah Johnson",
+                            text = user?.name ?: "",
                             style = MaterialTheme.typography.labelLarge,
                             fontSize = 18.sp,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "Age 28 · Joined Jan 2026",
+                            text =
+                                "Age ${user?.age ?: "Unknown"} · Joined ${user?.memberSince ?: ""}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 13.sp,
