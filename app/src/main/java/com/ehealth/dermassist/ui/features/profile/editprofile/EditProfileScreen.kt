@@ -24,17 +24,10 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.domain.model.User
+import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.theme.*
-
-val sampleProfile =
-    User(
-        id = "random_UUID",
-        name = "Sarah Johnson",
-        age = 28,
-        memberSince = "January 2026",
-        email = "sarah@example.com",
-    )
 
 // ─── Validation Helpers ───────────────────────────────────────────────────────
 
@@ -58,24 +51,26 @@ private fun validateAge(age: String): String? =
 
 @Composable
 fun EditProfileScreen(
-    profile: User = sampleProfile,
-    onSave: (name: String, age: Int) -> Unit = { _, _ -> },
+    profile: User? = null,
     onCancel: () -> Unit = {},
+    onSave: () -> Unit = {},
+    viewModel: EditProfileScreenViewModel = hiltViewModel(),
 ) {
     val dimens = MaterialTheme.dimens
     val focusManager = LocalFocusManager.current
 
-    var name by remember { mutableStateOf(profile.name) }
-    var age by remember { mutableStateOf(profile.age.toString()) }
+    var name by remember { mutableStateOf(profile?.name) }
+    var age by remember { mutableStateOf((profile?.age ?: "").toString()) }
     var nameError by remember { mutableStateOf<String?>(null) }
     var ageError by remember { mutableStateOf<String?>(null) }
     var isDirty by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading.collectAsState()
 
     fun attemptSave() {
-        nameError = validateName(name)
+        nameError = validateName(name ?: "")
         ageError = validateAge(age)
         if (nameError == null && ageError == null) {
-            onSave(name.trim(), age.trim().toInt())
+            viewModel.saveChanges(name?.trim() ?: "", age.trim().toInt(), onSave)
         }
     }
 
@@ -98,7 +93,7 @@ fun EditProfileScreen(
             Spacer(modifier = Modifier.height(dimens.md))
 
             EditProfileTopBar(onCancel = onCancel)
-            AvatarSection(initials = profile.getInitials())
+            AvatarSection(initials = profile?.getInitials() ?: "")
             EditableBanner()
 
             Spacer(modifier = Modifier.height(dimens.md))
@@ -109,7 +104,7 @@ fun EditProfileScreen(
 
             EditableTextField(
                 label = "FULL NAME",
-                value = name,
+                value = name ?: "",
                 placeholder = "Enter your full name",
                 errorText = nameError,
                 keyboardOptions =
@@ -165,13 +160,13 @@ fun EditProfileScreen(
 
             Spacer(modifier = Modifier.height(dimens.sm))
 
-            ReadOnlyField(label = "MEMBER SINCE", value = profile.memberSince)
+            ReadOnlyField(label = "MEMBER SINCE", value = profile?.memberSince ?: "")
 
             Spacer(modifier = Modifier.height(dimens.md))
 
             ReadOnlyField(
                 label = "EMAIL",
-                value = profile.email,
+                value = profile?.email ?: "",
                 hint = "Linked to your sign-in account",
             )
         }
@@ -183,6 +178,10 @@ fun EditProfileScreen(
             onCancel = onCancel,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
+    }
+
+    if (isLoading) {
+        LoadingOverlay()
     }
 }
 

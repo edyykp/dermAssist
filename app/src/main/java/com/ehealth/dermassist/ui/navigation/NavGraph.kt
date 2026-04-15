@@ -93,7 +93,11 @@ fun AppNavGraph() {
             PrivacyPolicyScreen(onBackClick = { navController.popBackStack() })
         }
         composable(Screen.EditProfile.route) {
-            EditProfileScreen(onCancel = { navController.popBackStack() })
+            EditProfileScreen(
+                profile = user,
+                onSave = { navController.popBackStack() },
+                onCancel = { navController.popBackStack() },
+            )
         }
     }
 }

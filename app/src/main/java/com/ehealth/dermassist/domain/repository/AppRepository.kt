@@ -15,4 +15,6 @@ interface AppRepository {
     suspend fun logout()
 
     suspend fun clearUserData(): Result<Unit>
+
+    suspend fun updateUser(name: String, age: Int): Result<Unit>
 }

@@ -36,6 +36,7 @@ constructor(private val firebaseAuth: FirebaseAuth, private val firestore: Fireb
                         if (snapshot != null && snapshot.exists()) {
                             val age = snapshot.getLong("age")?.toInt()
                             val memberSinceMillis = snapshot.getLong("memberSince")
+                            val name = snapshot.getString("name") ?: firebaseUser.displayName ?: ""
 
                             val memberSince =
                                 memberSinceMillis?.let {
@@ -48,7 +49,7 @@ constructor(private val firebaseAuth: FirebaseAuth, private val firestore: Fireb
                                 User(
                                     id = userId,
                                     email = firebaseUser.email ?: "",
-                                    name = firebaseUser.displayName ?: "",
+                                    name = name,
                                     age = age,
                                     memberSince = memberSince,
                                 )
@@ -146,6 +147,18 @@ constructor(private val firebaseAuth: FirebaseAuth, private val firestore: Fireb
             } else {
                 Result.failure(Exception("User not logged in"))
             }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateUser(name: String, age: Int): Result<Unit> {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: throw Exception("User not logged in")
+
+            firestore.collection("users").document(userId).update("name", name, "age", age).await()
+
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
