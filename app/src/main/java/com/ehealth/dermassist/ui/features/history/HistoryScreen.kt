@@ -26,7 +26,6 @@ import com.ehealth.dermassist.domain.model.HistoryConditionTag
 import com.ehealth.dermassist.domain.model.ScanHistoryItem
 import com.ehealth.dermassist.ui.components.ButtonVariant
 import com.ehealth.dermassist.ui.components.DermButton
-import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.theme.*
 
 @Composable
@@ -38,7 +37,6 @@ fun HistoryScreen(
 ) {
     val dimens = MaterialTheme.dimens
     val scans by viewModel.scans.collectAsState()
-    val loading by viewModel.isLoading.collectAsState()
 
     // Trigger loading when userId changes and is valid
     LaunchedEffect(userId) {
@@ -73,10 +71,6 @@ fun HistoryScreen(
                 }
             }
         }
-    }
-
-    if (loading) {
-        LoadingOverlay()
     }
 }
 

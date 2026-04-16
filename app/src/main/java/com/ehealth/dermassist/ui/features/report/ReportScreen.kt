@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.ui.components.ButtonVariant
 import com.ehealth.dermassist.ui.components.DermButton
-import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
 import com.ehealth.dermassist.ui.features.report.model.SkinRecommendation
@@ -39,53 +38,43 @@ fun ReportScreen(
     viewModel: ReportScreenViewModel = hiltViewModel(),
 ) {
     val dimens = MaterialTheme.dimens
-    val loading by viewModel.isLoading.collectAsState()
     val report by viewModel.latestScan.collectAsState()
 
     LaunchedEffect(userId) { viewModel.setUserId(userId) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .verticalScroll(rememberScrollState())
-        ) {
+    Column(
+        modifier =
+            Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(dimens.md))
+
+        report?.let { reportData ->
+            ReportTopBar(date = reportData.scanDate)
+
             Spacer(modifier = Modifier.height(dimens.md))
 
-            report?.let { reportData ->
-                ReportTopBar(date = reportData.scanDate)
+            ScanPreviewCard(scanArea = reportData.scanArea, overallScore = reportData.overallScore)
 
-                Spacer(modifier = Modifier.height(dimens.md))
+            Spacer(modifier = Modifier.height(dimens.md))
 
-                ScanPreviewCard(
-                    scanArea = reportData.scanArea,
-                    overallScore = reportData.overallScore,
-                )
+            DetectedConditionsSection(conditions = reportData.conditions)
 
-                Spacer(modifier = Modifier.height(dimens.md))
+            Spacer(modifier = Modifier.height(dimens.md))
 
-                DetectedConditionsSection(conditions = reportData.conditions)
+            SkinMetricsCard(metrics = reportData.metrics)
 
-                Spacer(modifier = Modifier.height(dimens.md))
+            Spacer(modifier = Modifier.height(dimens.md))
 
-                SkinMetricsCard(metrics = reportData.metrics)
+            RecommendationsCard(recommendations = reportData.recommendations)
 
-                Spacer(modifier = Modifier.height(dimens.md))
+            Spacer(modifier = Modifier.height(dimens.md))
 
-                RecommendationsCard(recommendations = reportData.recommendations)
+            RescanButton(onClick = onRescanClick)
+        } ?: run { ReportEmptyState(onRescanClick) }
 
-                Spacer(modifier = Modifier.height(dimens.md))
-
-                RescanButton(onClick = onRescanClick)
-            } ?: run { ReportEmptyState(onRescanClick) }
-
-            Spacer(modifier = Modifier.height(dimens.grid3))
-        }
-
-        if (loading) {
-            LoadingOverlay()
-        }
+        Spacer(modifier = Modifier.height(dimens.grid3))
     }
 }
 

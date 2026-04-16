@@ -24,9 +24,6 @@ constructor(
     private val scanRepository: ScanRepository,
     private val loadingStateDelegate: LoadingStateDelegate,
 ) : ViewModel() {
-
-    val isLoading: StateFlow<Boolean> = loadingStateDelegate.isLoading
-
     private val _userId = MutableStateFlow<String?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)

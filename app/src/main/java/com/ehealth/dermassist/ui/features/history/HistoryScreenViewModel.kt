@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ehealth.dermassist.domain.model.HistoryConditionTag
 import com.ehealth.dermassist.domain.model.ScanHistoryItem
 import com.ehealth.dermassist.domain.repository.ScanRepository
+import com.ehealth.dermassist.ui.LoadingStateDelegate
 import com.ehealth.dermassist.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,11 +19,12 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HistoryScreenViewModel @Inject constructor(private val scanRepository: ScanRepository) :
-    ViewModel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
+class HistoryScreenViewModel
+@Inject
+constructor(
+    private val scanRepository: ScanRepository,
+    private val loadingStateDelegate: LoadingStateDelegate,
+) : ViewModel() {
     private val _scans = MutableStateFlow<List<ScanHistoryItem>>(emptyList())
     val scans: StateFlow<List<ScanHistoryItem>> = _scans.asStateFlow()
 
@@ -37,7 +39,7 @@ class HistoryScreenViewModel @Inject constructor(private val scanRepository: Sca
             viewModelScope.launch {
                 scanRepository
                     .getUserScans(userId)
-                    .onStart { _isLoading.value = true }
+                    .onStart { loadingStateDelegate.setLoading(true) }
                     .map { entities ->
                         entities.map { entity ->
                             val (date, time) = formatDateTime(entity.createdAt)
@@ -58,11 +60,11 @@ class HistoryScreenViewModel @Inject constructor(private val scanRepository: Sca
                     }
                     .catch {
                         _scans.value = emptyList()
-                        _isLoading.value = false
+                        loadingStateDelegate.setLoading(false)
                     }
                     .collect { list ->
                         _scans.value = list
-                        _isLoading.value = false
+                        loadingStateDelegate.setLoading(false)
                     }
             }
     }
