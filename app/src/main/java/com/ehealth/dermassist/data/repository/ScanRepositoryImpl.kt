@@ -10,14 +10,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : ScanRepository {
+class ScanRepositoryImpl @Inject constructor(private val firestore: FirebaseFirestore) :
+    ScanRepository {
 
-    private val collection = firestore.collection("scans")
+    // Helper to get user-specific scans collection
+    private fun getUserScansCollection(userId: String) =
+        firestore.collection("users").document(userId).collection("scans")
 
     override fun getUserScans(userId: String): Flow<List<ScanEntity>> = callbackFlow {
         val listener =
-            collection
-                .whereEqualTo("userId", userId)
+            getUserScansCollection(userId)
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .addSnapshotListener { snapshot, error ->
                     if (error != null || snapshot == null) {
@@ -38,7 +40,7 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
 
     override suspend fun getScanDetails(userId: String, scanId: String): ScanEntity? {
         return try {
-            val doc = collection.document(scanId).get().await()
+            val doc = getUserScansCollection(userId).document(scanId).get().await()
             if (doc.exists()) {
                 doc.toObject(ScanEntity::class.java)?.copy(id = doc.id)
             } else null
@@ -49,7 +51,7 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
 
     override fun getTotalScans(userId: String): Flow<Int> = callbackFlow {
         val listener =
-            collection.whereEqualTo("userId", userId).addSnapshotListener { snapshot, error ->
+            getUserScansCollection(userId).addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) {
                     trySend(0)
                     return@addSnapshotListener
@@ -62,8 +64,7 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
     override suspend fun getLatestScan(userId: String): ScanEntity? {
         return try {
             val snapshot =
-                collection
-                    .whereEqualTo("userId", userId)
+                getUserScansCollection(userId)
                     .orderBy("createdAt", Query.Direction.DESCENDING)
                     .limit(1)
                     .get()
@@ -79,7 +80,7 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
 
     override suspend fun addScan(scan: ScanEntity): Result<Unit> {
         return try {
-            val docRef = collection.document()
+            val docRef = getUserScansCollection(scan.userId).document()
             val data = scan.copy(id = docRef.id, createdAt = System.currentTimeMillis())
             docRef.set(data).await()
             Result.success(Unit)
