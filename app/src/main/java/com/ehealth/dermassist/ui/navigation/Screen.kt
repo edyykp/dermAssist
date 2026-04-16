@@ -23,4 +23,8 @@ sealed class Screen(val route: String) {
     object PrivacyPolicy : Screen("privacy_policy")
 
     object EditProfile : Screen("edit_profile")
+
+    object ScanDetail : Screen("scan_detail/{scanId}") {
+        fun createRoute(scanId: String) = "scan_detail/$scanId"
+    }
 }

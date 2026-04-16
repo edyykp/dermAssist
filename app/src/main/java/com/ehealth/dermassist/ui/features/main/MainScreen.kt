@@ -34,6 +34,7 @@ import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.ui.MainViewModel
 import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.features.history.HistoryScreen
+import com.ehealth.dermassist.ui.features.history.ScanDetailScreen
 import com.ehealth.dermassist.ui.features.home.HomeScreen
 import com.ehealth.dermassist.ui.features.profile.ProfileScreen
 import com.ehealth.dermassist.ui.features.report.ReportScreen
@@ -57,15 +58,28 @@ fun MainScreen(
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
                     items.forEach { screen ->
+                        val isSelected =
+                            when (screen) {
+                                Screen.History ->
+                                    currentDestination?.hierarchy?.any {
+                                        it.route == Screen.History.route ||
+                                            it.route == Screen.ScanDetail.route
+                                    } == true
+                                else ->
+                                    currentDestination?.hierarchy?.any {
+                                        it.route == screen.route
+                                    } == true
+                            }
+
                         NavigationBarItem(
                             icon = {
                                 when (screen) {
                                     Screen.Home ->
-                                        if (currentDestination == Screen.Home)
+                                        if (isSelected)
                                             Icon(Icons.Filled.Home, contentDescription = null)
                                         else Icon(Icons.Outlined.Home, contentDescription = null)
                                     Screen.Report ->
-                                        if (currentDestination == Screen.Report)
+                                        if (isSelected)
                                             Icon(
                                                 Icons.Filled.DocumentScanner,
                                                 contentDescription = null,
@@ -77,24 +91,22 @@ fun MainScreen(
                                             )
 
                                     Screen.History ->
-                                        if (currentDestination == Screen.History)
+                                        if (isSelected)
                                             Icon(Icons.Filled.Folder, contentDescription = null)
                                         else Icon(Icons.Outlined.Folder, contentDescription = null)
                                     Screen.Profile ->
-                                        if (currentDestination == Screen.Profile)
+                                        if (isSelected)
                                             Icon(Icons.Filled.Person, contentDescription = null)
                                         else Icon(Icons.Outlined.Person, contentDescription = null)
 
                                     else ->
-                                        if (currentDestination == Screen.Home)
+                                        if (isSelected)
                                             Icon(Icons.Filled.Home, contentDescription = null)
                                         else Icon(Icons.Outlined.Home, contentDescription = null)
                                 }
                             },
                             label = { Text(screen.route.replaceFirstChar { it.uppercase() }) },
-                            selected =
-                                currentDestination?.hierarchy?.any { it.route == screen.route } ==
-                                    true,
+                            selected = isSelected,
                             onClick = {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
@@ -134,6 +146,9 @@ fun MainScreen(
                 composable(Screen.History.route) {
                     HistoryScreen(
                         userId = user?.id ?: "",
+                        onScanClick = { item ->
+                            navController.navigate(Screen.ScanDetail.createRoute(item.id))
+                        },
                         onTakeFirstScanClick = { navController.navigate(Screen.Home.route) },
                     )
                 }
@@ -142,6 +157,14 @@ fun MainScreen(
                         user = user,
                         onEditProfileClick = onEditProfileClick,
                         onPrivacyAndDataClick = onPrivacyAndDataClick,
+                    )
+                }
+                composable(Screen.ScanDetail.route) { backStackEntry ->
+                    val scanId = backStackEntry.arguments?.getString("scanId") ?: ""
+                    ScanDetailScreen(
+                        userId = user?.id ?: "",
+                        scanId = scanId,
+                        onBackClick = { navController.popBackStack() },
                     )
                 }
             }
