@@ -1,17 +1,17 @@
 package com.ehealth.dermassist.domain.repository
 
-import com.ehealth.dermassist.domain.model.ScanHistoryItem
+import com.ehealth.dermassist.data.model.ScanEntity
 import kotlinx.coroutines.flow.Flow
 
 interface ScanRepository {
 
-    fun getUserScans(userId: String): Flow<List<ScanHistoryItem>>
+    fun getUserScans(userId: String): Flow<List<ScanEntity>>
 
-    suspend fun getScanDetails(userId: String, scanId: String): ScanHistoryItem?
+    suspend fun getScanDetails(userId: String, scanId: String): ScanEntity?
 
     fun getTotalScans(userId: String): Flow<Int>
 
-    suspend fun getLatestScan(userId: String): ScanHistoryItem?
+    suspend fun getLatestScan(userId: String): ScanEntity?
 
-    suspend fun addScan(scan: ScanHistoryItem): Result<Unit>
+    suspend fun addScan(scan: ScanEntity): Result<Unit>
 }

@@ -6,9 +6,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -17,121 +19,76 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.ui.components.ButtonVariant
+import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.features.report.model.ConditionSeverity
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
 import com.ehealth.dermassist.ui.features.report.model.SkinRecommendation
-import com.ehealth.dermassist.ui.features.report.model.SkinReport
 import com.ehealth.dermassist.ui.theme.*
-
-val sampleReport =
-    SkinReport(
-        scanDate = "Mar 27, 2026",
-        scanArea = "Left cheek scan",
-        overallScore = 74,
-        conditions =
-            listOf(
-                SkinCondition("Mild Acne", ConditionSeverity.CONCERN),
-                SkinCondition("Some Redness", ConditionSeverity.MODERATE),
-                SkinCondition("Good Hydration", ConditionSeverity.GOOD),
-                SkinCondition("Low Oiliness", ConditionSeverity.GOOD),
-            ),
-        metrics =
-            listOf(
-                SkinMetric("Hydration", 82, PrimaryGreen),
-                SkinMetric("Oiliness", 24, PrimaryBlue),
-                SkinMetric("Redness", 41, Color(0xFFF59E0B)),
-                SkinMetric("Acne Score", 35, ErrorRed),
-            ),
-        recommendations =
-            listOf(
-                SkinRecommendation(
-                    title = "Use a gentle cleanser twice daily",
-                    description = "Opt for pH-balanced formulas to support your skin barrier.",
-                    icon = Icons.Outlined.CheckCircle,
-                    iconBg = IconBgGreen,
-                    iconTint = PrimaryGreen,
-                ),
-                SkinRecommendation(
-                    title = "Apply SPF 30+ every morning",
-                    description = "Protect against UV-induced redness and hyperpigmentation.",
-                    icon = Icons.Outlined.WbSunny,
-                    iconBg = IconBgBlue,
-                    iconTint = PrimaryBlue,
-                ),
-                SkinRecommendation(
-                    title = "Avoid touching your face",
-                    description = "Reduces bacteria transfer that contributes to breakouts.",
-                    icon = Icons.Outlined.Warning,
-                    iconBg = IconBgRed,
-                    iconTint = ErrorRed,
-                ),
-            ),
-    )
-
-// ─── Report Screen ────────────────────────────────────────────────────────────
 
 @Composable
 fun ReportScreen(
     userId: String,
-    report: SkinReport = sampleReport,
     onRescanClick: () -> Unit = {},
     viewModel: ReportScreenViewModel = hiltViewModel(),
 ) {
     val dimens = MaterialTheme.dimens
     val loading by viewModel.isLoading.collectAsState()
-    val latest by viewModel.latestScan.collectAsState(initial = userId)
+    val report by viewModel.latestScan.collectAsState()
 
-    Column(
-        modifier =
-            Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(dimens.md))
+    LaunchedEffect(userId) { viewModel.setUserId(userId) }
 
-        // ── Top Bar ───────────────────────────────────────────────────────────
-        ReportTopBar(date = report.scanDate)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.md))
+            report?.let { reportData ->
+                ReportTopBar(date = reportData.scanDate)
 
-        // ── Scan Preview Card ─────────────────────────────────────────────────
-        ScanPreviewCard(scanArea = report.scanArea, overallScore = report.overallScore)
+                Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.md))
+                ScanPreviewCard(
+                    scanArea = reportData.scanArea,
+                    overallScore = reportData.overallScore,
+                )
 
-        // ── Detected Conditions ───────────────────────────────────────────────
-        DetectedConditionsSection(conditions = report.conditions)
+                Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.md))
+                DetectedConditionsSection(conditions = reportData.conditions)
 
-        // ── Skin Metrics ──────────────────────────────────────────────────────
-        SkinMetricsCard(metrics = report.metrics)
+                Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.md))
+                SkinMetricsCard(metrics = reportData.metrics)
 
-        // ── Recommendations ───────────────────────────────────────────────────
-        RecommendationsCard(recommendations = report.recommendations)
+                Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.md))
+                RecommendationsCard(recommendations = reportData.recommendations)
 
-        // ── Re-scan CTA ───────────────────────────────────────────────────────
-        RescanButton(onClick = onRescanClick)
+                Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.grid3))
-    }
+                RescanButton(onClick = onRescanClick)
+            } ?: run { ReportEmptyState(onRescanClick) }
 
-    if (loading) {
-        LoadingOverlay()
+            Spacer(modifier = Modifier.height(dimens.grid3))
+        }
+
+        if (loading) {
+            LoadingOverlay()
+        }
     }
 }
-
-// ─── Top Bar ──────────────────────────────────────────────────────────────────
 
 @Composable
 private fun ReportTopBar(date: String) {
@@ -148,29 +105,21 @@ private fun ReportTopBar(date: String) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(dimens.sm),
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            modifier =
+                Modifier.clip(RoundedCornerShape(dimens.radiusHuge))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
         ) {
-            // Date chip
-            Box(
-                modifier =
-                    Modifier.clip(RoundedCornerShape(dimens.radiusHuge))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
-            ) {
-                Text(
-                    text = date,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Text(
+                text = date,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
-
-// ─── Scan Preview Card ────────────────────────────────────────────────────────
 
 @Composable
 private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
@@ -183,7 +132,6 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
         elevation = CardDefaults.cardElevation(dimens.elevationSm),
     ) {
         Column {
-            // Image placeholder with gradient overlay
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -199,14 +147,12 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
                                 )
                         )
             ) {
-                // Placeholder scan icon
                 Icon(
                     imageVector = Icons.Outlined.Face,
                     contentDescription = "Scan preview",
                     tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                     modifier = Modifier.size(dimens.xl).align(Alignment.Center),
                 )
-                // Bottom overlay bar
                 Row(
                     modifier =
                         Modifier.fillMaxWidth()
@@ -243,7 +189,6 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
                 }
             }
 
-            // Score row
             Row(
                 modifier = Modifier.fillMaxWidth().padding(dimens.md),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -273,8 +218,6 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
     }
 }
 
-// ─── Detected Conditions ──────────────────────────────────────────────────────
-
 @Composable
 private fun DetectedConditionsSection(conditions: List<SkinCondition>) {
     val dimens = MaterialTheme.dimens
@@ -287,7 +230,6 @@ private fun DetectedConditionsSection(conditions: List<SkinCondition>) {
             color = MaterialTheme.colorScheme.onBackground,
         )
         Spacer(modifier = Modifier.height(dimens.sm))
-        // Wrap chips in two rows manually to avoid FlowRow needing extra dependency
         val chunked = conditions.chunked(2)
         chunked.forEach { row ->
             Row(
@@ -335,8 +277,6 @@ private fun ConditionChip(condition: SkinCondition) {
     }
 }
 
-// ─── Skin Metrics Card ────────────────────────────────────────────────────────
-
 @Composable
 private fun SkinMetricsCard(metrics: List<SkinMetric>) {
     val dimens = MaterialTheme.dimens
@@ -358,7 +298,7 @@ private fun SkinMetricsCard(metrics: List<SkinMetric>) {
             metrics.forEachIndexed { index, metric ->
                 SkinMetricRow(metric = metric)
                 if (index < metrics.lastIndex) {
-                    Spacer(modifier = Modifier.height(dimens.grid175))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimens.grid175))
                 }
             }
         }
@@ -389,7 +329,6 @@ private fun SkinMetricRow(metric: SkinMetric) {
             )
         }
         Spacer(modifier = Modifier.height(dimens.grid075))
-        // Track
         Box(
             modifier =
                 Modifier.fillMaxWidth()
@@ -397,7 +336,6 @@ private fun SkinMetricRow(metric: SkinMetric) {
                     .clip(RoundedCornerShape(dimens.xs))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            // Fill
             Box(
                 modifier =
                     Modifier.fillMaxWidth(metric.value / 100f)
@@ -408,8 +346,6 @@ private fun SkinMetricRow(metric: SkinMetric) {
         }
     }
 }
-
-// ─── Recommendations Card ─────────────────────────────────────────────────────
 
 @Composable
 private fun RecommendationsCard(recommendations: List<SkinRecommendation>) {
@@ -483,30 +419,66 @@ private fun RecommendationRow(recommendation: SkinRecommendation) {
     }
 }
 
-// ─── Re-scan Button ───────────────────────────────────────────────────────────
-
 @Composable
 private fun RescanButton(onClick: () -> Unit) {
     val dimens = MaterialTheme.dimens
 
-    Button(
+    DermButton(
+        text = "Take New Scan",
         onClick = onClick,
-        modifier =
-            Modifier.fillMaxWidth().padding(horizontal = dimens.grid25).height(dimens.buttonHeight),
-        shape = RoundedCornerShape(dimens.radiusHuge),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.CameraAlt,
-            contentDescription = null,
-            modifier = Modifier.size(dimens.iconSm),
-        )
-        Spacer(modifier = Modifier.width(dimens.sm))
-        Text(text = "Take New Scan", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-    }
+        modifier = Modifier.padding(horizontal = dimens.grid25),
+    )
 }
 
-// ─── Preview ─────────────────────────────────────────────────────────────────
+@Composable
+private fun ReportEmptyState(onTakeFirstScanClick: () -> Unit) {
+    val dimens = MaterialTheme.dimens
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(dimens.grid6),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier =
+                Modifier.size(MaterialTheme.dimens.grid9)
+                    .clip(RoundedCornerShape(50))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.Assignment,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(MaterialTheme.dimens.grid45),
+            )
+        }
+        Spacer(modifier = Modifier.height(dimens.md))
+        Text(
+            text = "No report available",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Spacer(modifier = Modifier.height(dimens.sm))
+        Text(
+            text =
+                "You haven't performed any skin scans yet.\nPerform a scan to see your detailed report here.",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            lineHeight = 22.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = dimens.grid4),
+        )
+        Spacer(modifier = Modifier.height(dimens.lg))
+        DermButton(
+            text = "Take your first scan",
+            variant = ButtonVariant.Secondary,
+            onClick = onTakeFirstScanClick,
+            modifier = Modifier,
+        )
+    }
+}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

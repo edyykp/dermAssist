@@ -1,6 +1,6 @@
 package com.ehealth.dermassist.data.repository
 
-import com.ehealth.dermassist.domain.model.ScanHistoryItem
+import com.ehealth.dermassist.data.model.ScanEntity
 import com.ehealth.dermassist.domain.repository.ScanRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -14,10 +14,7 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
 
     private val collection = firestore.collection("scans")
 
-    // ─────────────────────────────
-    // ALL SCANS (REAL-TIME)
-    // ─────────────────────────────
-    override fun getUserScans(userId: String): Flow<List<ScanHistoryItem>> = callbackFlow {
+    override fun getUserScans(userId: String): Flow<List<ScanEntity>> = callbackFlow {
         val listener =
             collection
                 .whereEqualTo("userId", userId)
@@ -28,35 +25,28 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
                         return@addSnapshotListener
                     }
 
-                    val scans =
+                    val items =
                         snapshot.documents.mapNotNull { doc ->
-                            doc.toObject(ScanHistoryItem::class.java)?.copy(id = doc.id)
+                            doc.toObject(ScanEntity::class.java)?.copy(id = doc.id)
                         }
 
-                    trySend(scans)
+                    trySend(items)
                 }
 
         awaitClose { listener.remove() }
     }
 
-    // ─────────────────────────────
-    // SINGLE SCAN DETAILS
-    // ─────────────────────────────
-    override suspend fun getScanDetails(userId: String, scanId: String): ScanHistoryItem? {
+    override suspend fun getScanDetails(userId: String, scanId: String): ScanEntity? {
         return try {
             val doc = collection.document(scanId).get().await()
-
             if (doc.exists()) {
-                doc.toObject(ScanHistoryItem::class.java)?.copy(id = doc.id)
+                doc.toObject(ScanEntity::class.java)?.copy(id = doc.id)
             } else null
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
 
-    // ─────────────────────────────
-    // TOTAL SCANS COUNT
-    // ─────────────────────────────
     override fun getTotalScans(userId: String): Flow<Int> = callbackFlow {
         val listener =
             collection.whereEqualTo("userId", userId).addSnapshotListener { snapshot, error ->
@@ -64,17 +54,12 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
                     trySend(0)
                     return@addSnapshotListener
                 }
-
                 trySend(snapshot.size())
             }
-
         awaitClose { listener.remove() }
     }
 
-    // ─────────────────────────────
-    // LATEST SCAN
-    // ─────────────────────────────
-    override suspend fun getLatestScan(userId: String): ScanHistoryItem? {
+    override suspend fun getLatestScan(userId: String): ScanEntity? {
         return try {
             val snapshot =
                 collection
@@ -85,24 +70,18 @@ class ScanRepositoryImpl @Inject constructor(firestore: FirebaseFirestore) : Sca
                     .await()
 
             snapshot.documents.firstOrNull()?.let { doc ->
-                doc.toObject(ScanHistoryItem::class.java)?.copy(id = doc.id)
+                doc.toObject(ScanEntity::class.java)?.copy(id = doc.id)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
 
-    // ─────────────────────────────
-    // ADD NEW SCAN
-    // ─────────────────────────────
-    override suspend fun addScan(scan: ScanHistoryItem): Result<Unit> {
+    override suspend fun addScan(scan: ScanEntity): Result<Unit> {
         return try {
             val docRef = collection.document()
-
-            val data = scan.copy(id = docRef.id)
-
+            val data = scan.copy(id = docRef.id, createdAt = System.currentTimeMillis())
             docRef.set(data).await()
-
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
