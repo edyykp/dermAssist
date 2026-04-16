@@ -423,11 +423,21 @@ private fun RecommendationRow(recommendation: SkinRecommendation) {
 private fun RescanButton(onClick: () -> Unit) {
     val dimens = MaterialTheme.dimens
 
-    DermButton(
-        text = "Take New Scan",
+    Button(
         onClick = onClick,
-        modifier = Modifier.padding(horizontal = dimens.grid25),
-    )
+        modifier =
+            Modifier.fillMaxWidth().padding(horizontal = dimens.grid25).height(dimens.buttonHeight),
+        shape = RoundedCornerShape(dimens.radiusHuge),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.CameraAlt,
+            contentDescription = null,
+            modifier = Modifier.size(dimens.iconSm),
+        )
+        Spacer(modifier = Modifier.width(dimens.sm))
+        Text(text = "Take New Scan", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+    }
 }
 
 @Composable

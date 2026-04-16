@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,79 +29,6 @@ import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.theme.*
 
-// ─── Sample Data ──────────────────────────────────────────────────────────────
-
-val sampleHistory =
-    listOf(
-        ScanHistoryItem(
-            id = "1",
-            date = "Mar 27, 2026",
-            time = "09:41 AM",
-            scanTitle = "Left cheek scan",
-            accentColor = PrimaryGreen,
-            accentBgColor = IconBgGreen,
-            conditions =
-                listOf(
-                    HistoryConditionTag("Acne", IconBgRed, ErrorRed),
-                    HistoryConditionTag("Redness", BadgeOrangeBg, BadgeOrangeText),
-                ),
-        ),
-        ScanHistoryItem(
-            id = "2",
-            date = "Mar 20, 2026",
-            time = "08:15 AM",
-            scanTitle = "Lower leg wound",
-            accentColor = PrimaryBlue,
-            accentBgColor = IconBgBlue,
-            conditions =
-                listOf(
-                    HistoryConditionTag("Acne", IconBgRed, ErrorRed),
-                    HistoryConditionTag("Hydration", IconBgGreen, PrimaryGreen),
-                ),
-        ),
-        ScanHistoryItem(
-            id = "3",
-            date = "Mar 13, 2026",
-            time = "10:30 AM",
-            scanTitle = "Mole",
-            accentColor = PillPurple,
-            accentBgColor = IconBgPurple,
-            conditions =
-                listOf(
-                    HistoryConditionTag("Redness", BadgeOrangeBg, BadgeOrangeText),
-                    HistoryConditionTag("Low Oil", IconBgGreen, PrimaryGreen),
-                ),
-        ),
-        ScanHistoryItem(
-            id = "4",
-            date = "Mar 6, 2026",
-            time = "07:55 AM",
-            scanTitle = "Eczema",
-            accentColor = Color(0xFFEA6C00),
-            accentBgColor = IconBgOrange,
-            conditions =
-                listOf(
-                    HistoryConditionTag("Acne", IconBgRed, ErrorRed),
-                    HistoryConditionTag("Redness", BadgeOrangeBg, BadgeOrangeText),
-                ),
-        ),
-        ScanHistoryItem(
-            id = "5",
-            date = "Feb 27, 2026",
-            time = "09:10 AM",
-            scanTitle = "Dermatitis",
-            accentColor = ErrorRed,
-            accentBgColor = IconBgRed,
-            conditions =
-                listOf(
-                    HistoryConditionTag("Acne", IconBgRed, ErrorRed),
-                    HistoryConditionTag("Dry Skin", IconBgBlue, PrimaryBlue),
-                ),
-        ),
-    )
-
-// ─── History Screen ───────────────────────────────────────────────────────────
-
 @Composable
 fun HistoryScreen(
     userId: String,
@@ -114,7 +40,12 @@ fun HistoryScreen(
     val scans by viewModel.scans.collectAsState()
     val loading by viewModel.isLoading.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.start(userId) }
+    // Trigger loading when userId changes and is valid
+    LaunchedEffect(userId) {
+        if (userId.isNotBlank()) {
+            viewModel.start(userId)
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         Spacer(modifier = Modifier.height(dimens.md))

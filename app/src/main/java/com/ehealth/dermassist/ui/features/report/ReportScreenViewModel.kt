@@ -1,5 +1,13 @@
 package com.ehealth.dermassist.ui.features.report
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ehealth.dermassist.domain.repository.ScanRepository
@@ -45,7 +53,7 @@ class ReportScreenViewModel @Inject constructor(private val scanRepository: Scan
                                         SkinMetric(
                                             name = metric.name,
                                             value = metric.value,
-                                            color = metric.color,
+                                            color = parseColor(metric.colorHex),
                                         )
                                     },
                                 recommendations =
@@ -53,9 +61,9 @@ class ReportScreenViewModel @Inject constructor(private val scanRepository: Scan
                                         SkinRecommendation(
                                             title = recommendation.title,
                                             description = recommendation.description,
-                                            icon = recommendation.icon,
-                                            iconBg = recommendation.iconBg,
-                                            iconTint = recommendation.iconTint,
+                                            icon = parseIcon(recommendation.iconName),
+                                            iconBg = parseColor(recommendation.iconBgHex),
+                                            iconTint = parseColor(recommendation.iconTintHex),
                                         )
                                     },
                             )
@@ -76,5 +84,26 @@ class ReportScreenViewModel @Inject constructor(private val scanRepository: Scan
         return java.text
             .SimpleDateFormat("MMM dd, yyyy", java.util.Locale.US)
             .format(java.util.Date(timestamp))
+    }
+
+    private fun parseColor(hex: String): Color {
+        return try {
+            if (hex.startsWith("0x")) {
+                Color(hex.removePrefix("0x").toLong(16))
+            } else {
+                Color(hex.toColorInt())
+            }
+        } catch (_: Exception) {
+            Color.Gray
+        }
+    }
+
+    private fun parseIcon(name: String): ImageVector {
+        return when (name) {
+            "wb_sunny" -> Icons.Outlined.WbSunny
+            "warning" -> Icons.Outlined.Warning
+            "check_circle" -> Icons.Outlined.CheckCircle
+            else -> Icons.Outlined.Info
+        }
     }
 }
