@@ -172,6 +172,10 @@ External systems can integrate with the DermAssist data layer via the following:
 *   **Consent:** Obtained via Onboarding/Splash screen flow before any image is sent for AI analysis.
 *   **Right to Erase:** Users can invoke `clearUserData()`, which deletes both their Firestore profile and their Authentication record.
 
+### d) Incident Response Plan
+*   **Monitoring:** Firebase Cloud Logging and Audit Logs.
+*   **Strategy:** Automated alerts for unusual access patterns; immediate credential revocation via Google IAM.
+
 ---
 
 ## 7. System Diagrams (Text Representation)
