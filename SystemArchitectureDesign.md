@@ -1,6 +1,6 @@
 # System Architecture Design: DermAssist Mobile Application
 
-This document provides a comprehensive technical overview of the DermAssist system architecture, based on the current implementation of the Android application and its integration with Firebase services.
+This document provides a comprehensive technical overview of the DermAssist system architecture, based on the current implementation of the Android application and its integration with Firebase services, as well as planned integration with external AI analysis providers.
 
 ---
 
@@ -23,7 +23,10 @@ The DermAssist application is built using a modern Android development stack, em
     *   **Firebase App Check:** Security layer with Play Integrity.
     *   **Google Services Plugin:** Integration orchestrator.
 
-*   **Justification:** This stack is appropriate for DermAssist because it allows for rapid development with high scalability. Firebase's NoSQL structure is ideal for evolving medical data schemas, while Jetpack Compose allows for highly responsive UI layouts necessary for medical reporting.
+*   **External AI Services:**
+    *   **Perfect Corp AI Skin Analysis API:** External third-party API used for processing skin images to detect conditions and calculate health metrics.
+
+*   **Justification:** This stack is appropriate for DermAssist because it allows for rapid development with high scalability. Firebase's NoSQL structure is ideal for evolving medical data schemas, while the integration of a specialized external AI API ensures high-quality diagnostic insights without the overhead of maintaining internal ML models.
 
 ---
 
@@ -31,13 +34,14 @@ The DermAssist application is built using a modern Android development stack, em
 
 *   **End-User Hardware:**
     *   **Android Smartphone:** Required to run the application.
-    *   **High-Resolution Camera:** Essential for capturing clear skin images.
-    *   **Internet Connectivity:** Necessary for Firebase synchronization and authentication.
+    *   **High-Resolution Camera:** Essential for capturing clear skin images for AI processing.
+    *   **Internet Connectivity:** Necessary for Firebase synchronization, authentication, and external API calls.
     *   **Minimum Specifications:** Android 7.0 (API 24) or higher, 4GB RAM recommended, ARM64-v8a architecture.
 
 *   **Backend Infrastructure:**
     *   **Google Cloud Platform (GCP):** Managed serverless infrastructure (Firebase).
     *   **Cloud Firestore Clusters:** Geographically distributed NoSQL nodes.
+    *   **Perfect Corp Cloud:** Remote processing nodes for AI skin analysis.
 
 ---
 
@@ -47,11 +51,11 @@ The DermAssist application is built using a modern Android development stack, em
 
 #### Node 1: Mobile Device (Android Smartphone)
 *   **Operating System:** Android 7.0+
-*   **Role:** Client interface, image capture, local state management.
+*   **Role:** Client interface, image capture, local state management, and API gateway.
 *   **Components:**
     *   **UI Layer:** Composable screens (Home, History, Report, Profile).
     *   **ViewModels:** Business logic and state holders (e.g., `HomeViewModel`, `HistoryScreenViewModel`).
-    *   **Repositories:** `AppRepositoryImpl`, `ScanRepositoryImpl`.
+    *   **Repositories:** `AppRepositoryImpl`, `ScanRepositoryImpl` (handling Firestore and External API data).
     *   **Local State:** `LoadingStateDelegate` (Global loading manager).
     *   **SDKs:** Firebase Auth SDK, Firestore SDK, Credential Manager.
 
@@ -62,14 +66,22 @@ The DermAssist application is built using a modern Android development stack, em
     *   **Firebase Authentication Service:** Validates tokens and sessions.
     *   **Cloud Firestore Database:** Stores hierarchical NoSQL data.
 
+#### Node 3: Perfect Corp AI Skin Analysis API
+*   **Role:** External processing service for diagnostic analysis.
+*   **Components:**
+    *   **AI Models:** Specialized neural networks for skin condition detection.
+    *   **API Interface:** RESTful endpoint for receiving image data and returning structured analysis.
+
 ### b) Communication & Data Flow
 *   **Protocols:** 
-    *   **HTTPS/TLS:** Standard for all RESTful and SDK-based traffic.
+    *   **HTTPS/TLS:** Standard for all RESTful and SDK-based traffic, including external AI API calls.
     *   **Firestore Binary Protocol:** Used for real-time synchronization.
 *   **Data Flow:**
-    1.  **Auth Flow:** User authenticates via Google/Email -> Firebase Auth returns JWT -> App stores token locally.
-    2.  **Scan Flow:** Image captured -> `ScanRepository` pushes `ScanEntity` to Firestore -> Triggering real-time listeners.
-    3.  **Real-time Updates:** Firestore Snapshot Listeners push data updates to the `HistoryScreen` automatically.
+    1.  **Auth Flow:** User authenticates via Google/Email -> Firebase Auth returns JWT.
+    2.  **Scan Flow (Capture):** Image captured -> Mobile device sends image to **Perfect Corp API** over HTTPS.
+    3.  **Scan Flow (Analysis):** Perfect Corp returns structured JSON results (conditions, scores).
+    4.  **Scan Flow (Storage):** App maps results to `ScanEntity` -> `ScanRepository` pushes to Firestore.
+    5.  **Real-time Updates:** Firestore Snapshot Listeners push data updates to the `HistoryScreen` automatically.
 
 ---
 
@@ -103,7 +115,7 @@ The system uses a Document-Collection model in Cloud Firestore.
     *   `recommendations` (Array<Map>): List of `{ title, description, iconName, ... }`.
 
 ### b) Data Standards
-The implementation uses a simplified internal schema optimized for NoSQL performance. While not fully FHIR-compliant out-of-the-box, the field structures are designed to be mapped to FHIR `Observation` and `DiagnosticReport` resources for future interoperability.
+The implementation uses a simplified internal schema optimized for NoSQL performance. Diagnostic results from external APIs are normalized into this internal format to maintain interoperability and ease of reporting.
 
 ---
 
@@ -114,16 +126,7 @@ External systems can integrate with the DermAssist data layer via the following:
 *   **API Structure:** Firebase REST API or Admin SDK.
 *   **Authentication:** OAuth 2.0 / Firebase JWT.
 *   **Data Format:** JSON.
-*   **Example Request (Add Scan):**
-    ```json
-    POST /v1/projects/dermassist/databases/(default)/documents/users/{uid}/scans
-    {
-      "fields": {
-        "scanArea": { "stringValue": "Left Arm" },
-        "overallScore": { "integerValue": 85 }
-      }
-    }
-    ```
+*   **External API Interface:** The Perfect Corp AI Skin Analysis API is consumed via a RESTful POST request containing base64 image data or a publicly accessible URL.
 
 ---
 
@@ -134,17 +137,14 @@ External systems can integrate with the DermAssist data layer via the following:
 *   **Authorization:** Firestore Security Rules ensure that data is only accessible if `request.auth.uid == userId`.
 
 ### b) Data Encryption
-*   **In Transit:** Forced HTTPS/TLS for all communication.
+*   **In Transit:** Forced HTTPS/TLS for all communication, including transfers to the Perfect Corp API.
 *   **At Rest:** Automatic AES-256 encryption provided by Cloud Firestore.
 
 ### c) Privacy & GDPR
 *   **Data Collected:** Personal identity (Email, Name) and biometric-linked health data (Skin conditions).
-*   **Consent:** Obtained via Onboarding/Splash screen flow.
+*   **AI Processing Privacy:** Images sent to Perfect Corp are processed in accordance with their HIPAA/GDPR compliance standards.
+*   **Consent:** Obtained via Onboarding/Splash screen flow before any image is sent for AI analysis.
 *   **Right to Erase:** Users can invoke `clearUserData()`, which deletes both their Firestore profile and their Authentication record.
-
-### d) Incident Response Plan
-*   **Monitoring:** Firebase Cloud Logging and Audit Logs.
-*   **Strategy:** Automated alerts for unusual access patterns; immediate credential revocation via Google IAM.
 
 ---
 
@@ -157,20 +157,19 @@ External systems can integrate with the DermAssist data layer via the following:
 |  +-------------------------------------------------+  |
 |  | Components: UI (Compose), ViewModels, Hilt      |  |
 |  | SDKs: Firebase Auth, Firestore, Credential Mgr  |  |
-|  +-----------------------+-------------------------+  |
-|                          |                            |
-|                          | Protocol: HTTPS / gRPC     |
-|                          |                            |
-+--------------------------+----------------------------+
-                           |
-+--------------------------v----------------------------+
-|                Node: Firebase Cloud (GCP)             |
-|  +-------------------------------------------------+  |
-|  | Services:                                       |  |
-|  | - Firebase Authentication (Identity Provider)    |  |
-|  | - Cloud Firestore (NoSQL Storage)                |  |
-|  +-------------------------------------------------+  |
-+-------------------------------------------------------+
+|  +------------+-----------------------+---------------+  |
+|               |                       |               |
+|               | HTTPS (gRPC)          | HTTPS (REST)  |
+|               |                       |               |
++---------------+-----------------------+---------------+
+                |                       |
++---------------v---------------+       |  +---------------------------+
+|     Node: Firebase Cloud      |       |  |  Node: Perfect Corp API   |
+|  +-------------------------+  |       |  |  +---------------------+  |
+|  | - Auth Service          |  |       +-->  | AI Skin Analysis    |  |
+|  | - Firestore (NoSQL)     |  |          |  +---------------------+  |
+|  +-------------------------+  |          +---------------------------+
++-------------------------------+
 ```
 
 ### Entity Relationship Diagram (ERD)
@@ -189,7 +188,7 @@ External systems can integrate with the DermAssist data layer via the following:
           |-- overallScore
           |-- conditions (Array)
           |
-          +---[ METRICS ] (Embedded Map)
+          +---[ METRICS ] (Embedded Map from AI Result)
           |
           +---[ RECOMMENDATIONS ] (Embedded Map)
 ```
