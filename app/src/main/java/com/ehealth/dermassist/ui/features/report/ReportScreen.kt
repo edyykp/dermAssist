@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.features.report.model.ConditionSeverity
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
@@ -73,8 +77,15 @@ val sampleReport =
 // ─── Report Screen ────────────────────────────────────────────────────────────
 
 @Composable
-fun ReportScreen(report: SkinReport = sampleReport, onRescanClick: () -> Unit = {}) {
+fun ReportScreen(
+    userId: String,
+    report: SkinReport = sampleReport,
+    onRescanClick: () -> Unit = {},
+    viewModel: ReportScreenViewModel = hiltViewModel(),
+) {
     val dimens = MaterialTheme.dimens
+    val loading by viewModel.isLoading.collectAsState()
+    val latest by viewModel.latestScan.collectAsState(initial = userId)
 
     Column(
         modifier =
@@ -113,6 +124,10 @@ fun ReportScreen(report: SkinReport = sampleReport, onRescanClick: () -> Unit = 
         RescanButton(onClick = onRescanClick)
 
         Spacer(modifier = Modifier.height(dimens.grid3))
+    }
+
+    if (loading) {
+        LoadingOverlay()
     }
 }
 
@@ -496,5 +511,5 @@ private fun RescanButton(onClick: () -> Unit) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ReportScreenPreview() {
-    DermAssistTheme { ReportScreen() }
+    DermAssistTheme { ReportScreen(userId = "test") }
 }

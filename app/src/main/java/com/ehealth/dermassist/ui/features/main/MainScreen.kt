@@ -126,9 +126,17 @@ fun MainScreen(
             ) {
                 composable(Screen.Home.route) { HomeScreen(user) }
                 composable(Screen.Report.route) {
-                    ReportScreen(onRescanClick = { navController.navigate(Screen.Home.route) })
+                    ReportScreen(
+                        userId = user?.id ?: "",
+                        onRescanClick = { navController.navigate(Screen.Home.route) },
+                    )
                 }
-                composable(Screen.History.route) { HistoryScreen() }
+                composable(Screen.History.route) {
+                    HistoryScreen(
+                        userId = user?.id ?: "",
+                        onTakeFirstScanClick = { navController.navigate(Screen.Home.route) },
+                    )
+                }
                 composable(Screen.Profile.route) {
                     ProfileScreen(
                         user = user,

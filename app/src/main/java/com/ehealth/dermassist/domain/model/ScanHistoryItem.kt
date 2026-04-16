@@ -1,4 +1,4 @@
-package com.ehealth.dermassist.ui.features.history.model
+package com.ehealth.dermassist.domain.model
 
 import androidx.compose.ui.graphics.Color
 

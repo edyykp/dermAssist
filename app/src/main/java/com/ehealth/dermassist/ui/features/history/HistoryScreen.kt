@@ -10,6 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,10 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ehealth.dermassist.domain.model.HistoryConditionTag
+import com.ehealth.dermassist.domain.model.ScanHistoryItem
 import com.ehealth.dermassist.ui.components.ButtonVariant
 import com.ehealth.dermassist.ui.components.DermButton
-import com.ehealth.dermassist.ui.features.history.model.HistoryConditionTag
-import com.ehealth.dermassist.ui.features.history.model.ScanHistoryItem
+import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.theme.*
 
 // ─── Sample Data ──────────────────────────────────────────────────────────────
@@ -100,10 +105,16 @@ val sampleHistory =
 
 @Composable
 fun HistoryScreen(
-    scans: List<ScanHistoryItem> = sampleHistory,
+    userId: String,
     onScanClick: (ScanHistoryItem) -> Unit = {},
+    onTakeFirstScanClick: () -> Unit = {},
+    viewModel: HistoryScreenViewModel = hiltViewModel(),
 ) {
     val dimens = MaterialTheme.dimens
+    val scans by viewModel.scans.collectAsState()
+    val loading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(Unit) { viewModel.start(userId) }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         Spacer(modifier = Modifier.height(dimens.md))
@@ -115,7 +126,7 @@ fun HistoryScreen(
 
         // ── Scan List ─────────────────────────────────────────────────────────
         if (scans.isEmpty()) {
-            HistoryEmptyState()
+            HistoryEmptyState(onTakeFirstScanClick)
         } else {
             LazyColumn(
                 contentPadding =
@@ -131,6 +142,10 @@ fun HistoryScreen(
                 }
             }
         }
+    }
+
+    if (loading) {
+        LoadingOverlay()
     }
 }
 
@@ -262,7 +277,7 @@ private fun HistoryTag(tag: HistoryConditionTag) {
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
 @Composable
-private fun HistoryEmptyState() {
+private fun HistoryEmptyState(onTakeFirstScanClick: () -> Unit) {
     val dimens = MaterialTheme.dimens
 
     Column(
@@ -300,7 +315,7 @@ private fun HistoryEmptyState() {
         DermButton(
             text = "Take your first scan",
             variant = ButtonVariant.Secondary,
-            onClick = {},
+            onClick = onTakeFirstScanClick,
             modifier = Modifier,
         )
     }
@@ -311,12 +326,12 @@ private fun HistoryEmptyState() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HistoryScreenPreview() {
-    DermAssistTheme { HistoryScreen() }
+    DermAssistTheme { HistoryScreen(userId = "") }
 }
 
 // Preview empty state
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HistoryScreenEmptyPreview() {
-    DermAssistTheme { HistoryScreen(scans = emptyList()) }
+    DermAssistTheme { HistoryScreen(userId = "") }
 }
