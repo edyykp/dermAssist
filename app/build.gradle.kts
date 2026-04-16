@@ -44,6 +44,15 @@ android {
         compose = true
         buildConfig = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // HAPI FHIR needs these
+            pickFirsts += "META-INF/license.txt"
+            pickFirsts += "META-INF/notice.txt"
+            pickFirsts += "META-INF/ASL2.0"
+        }
+    }
 }
 
 dependencies {
@@ -70,6 +79,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
     implementation(libs.play.integrity)
+    implementation(libs.hapi.fhir.r4)
 
     // Hilt
     implementation(libs.hilt.android)

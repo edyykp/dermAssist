@@ -26,6 +26,9 @@ The DermAssist application is built using a modern Android development stack, em
 *   **External AI Services:**
     *   **Perfect Corp AI Skin Analysis API:** External third-party API used for processing skin images to detect conditions and calculate health metrics.
 
+*   **Health Data Standards:**
+    *   **HAPI FHIR R4:** Library used for mapping internal data to HL7 FHIR standards for medical interoperability.
+
 *   **Justification:** This stack is appropriate for DermAssist because it allows for rapid development with high scalability. Firebase's NoSQL structure is ideal for evolving medical data schemas, while the integration of a specialized external AI API ensures high-quality diagnostic insights without the overhead of maintaining internal ML models.
 
 ---
@@ -57,6 +60,7 @@ The DermAssist application is built using a modern Android development stack, em
     *   **ViewModels:** Business logic and state holders (e.g., `HomeViewModel`, `HistoryScreenViewModel`).
     *   **Repositories:** `AppRepositoryImpl`, `ScanRepositoryImpl` (handling Firestore and External API data).
     *   **Local State:** `LoadingStateDelegate` (Global loading manager).
+    *   **FHIR Mapping Layer:** `FhirMapper` (Converts internal models to HL7 FHIR resources).
     *   **SDKs:** Firebase Auth SDK, Firestore SDK, Credential Manager.
 
 #### Node 2: Firebase Backend (Cloud Infrastructure)
@@ -81,7 +85,8 @@ The DermAssist application is built using a modern Android development stack, em
     2.  **Scan Flow (Capture):** Image captured -> Mobile device sends image to **Perfect Corp API** over HTTPS.
     3.  **Scan Flow (Analysis):** Perfect Corp returns structured JSON results (conditions, scores).
     4.  **Scan Flow (Storage):** App maps results to `ScanEntity` -> `ScanRepository` pushes to Firestore.
-    5.  **Real-time Updates:** Firestore Snapshot Listeners push data updates to the `HistoryScreen` automatically.
+    5.  **Interoperability Flow:** App uses `FhirMapper` to transform `ScanEntity` into a FHIR `Observation` for external medical systems.
+    6.  **Real-time Updates:** Firestore Snapshot Listeners push data updates to the `HistoryScreen` automatically.
 
 ---
 
@@ -114,8 +119,18 @@ The system uses a Document-Collection model in Cloud Firestore.
     *   `metrics` (Array<Map>): List of `{ name, value, colorHex }`.
     *   `recommendations` (Array<Map>): List of `{ title, description, iconName, ... }`.
 
-### b) Data Standards
-The implementation uses a simplified internal schema optimized for NoSQL performance. Diagnostic results from external APIs are normalized into this internal format to maintain interoperability and ease of reporting.
+### b) Data Standards (HL7 FHIR R4)
+DermAssist implements a dedicated **FHIR Mapping Layer** (`FhirMapper.kt`) to ensure compatibility with global health information systems.
+
+*   **Patient Resource:** Maps internal `User` data to `Patient`.
+    *   `id` maps to FHIR ID.
+    *   `name` parsed into `family` and `given` components.
+    *   `email` mapped to `telecom`.
+*   **Observation Resource:** Maps `ScanEntity` to a structured `Observation`.
+    *   **Coding:** Uses **LOINC 86665-7** (Skin assessment) as the primary assessment code.
+    *   **Components:** Individual metrics (e.g., Hydration, Texture) are mapped as Observation components with percentage units (`%`).
+    *   **Interpretations:** Detected conditions are mapped using **SNOMED CT** placeholders in the interpretation field.
+    *   **Body Site:** `scanArea` is mapped to the `bodySite` field.
 
 ---
 
@@ -125,8 +140,19 @@ External systems can integrate with the DermAssist data layer via the following:
 
 *   **API Structure:** Firebase REST API or Admin SDK.
 *   **Authentication:** OAuth 2.0 / Firebase JWT.
-*   **Data Format:** JSON.
-*   **External API Interface:** The Perfect Corp AI Skin Analysis API is consumed via a RESTful POST request containing base64 image data or a publicly accessible URL.
+*   **Data Format:** JSON / FHIR-JSON.
+*   **FHIR Integration:** External medical systems can request data in FHIR R4 format. The `FhirMapper` utility generates the following structure for a scan:
+    ```json
+    {
+      "resourceType": "Observation",
+      "status": "final",
+      "code": {
+        "coding": [{"system": "http://loinc.org", "code": "86665-7"}]
+      },
+      "subject": { "reference": "Patient/user_123" },
+      "valueQuantity": { "value": 85, "unit": "Score" }
+    }
+    ```
 
 ---
 
@@ -155,8 +181,8 @@ External systems can integrate with the DermAssist data layer via the following:
 +-------------------------------------------------------+
 |                Node: Mobile Device (Android)          |
 |  +-------------------------------------------------+  |
-|  | Components: UI (Compose), ViewModels, Hilt      |  |
-|  | SDKs: Firebase Auth, Firestore, Credential Mgr  |  |
+|  | Components: UI, ViewModels, Hilt, FhirMapper    |  |
+|  | SDKs: Firebase Auth, Firestore, HAPI FHIR       |  |
 |  +------------+-----------------------+---------------+  |
 |               |                       |               |
 |               | HTTPS (gRPC)          | HTTPS (REST)  |
@@ -174,21 +200,11 @@ External systems can integrate with the DermAssist data layer via the following:
 
 ### Entity Relationship Diagram (ERD)
 ```text
-[ USER ]
-  |-- id (PK)
-  |-- name
-  |-- email
-  |-- age
-  |-- memberSince
+[ USER ] ---< [ FHIR PATIENT ]
   |
-  +---< [ SCAN ]
-          |-- id (PK)
-          |-- createdAt
-          |-- scanArea
-          |-- overallScore
-          |-- conditions (Array)
+  +---< [ SCAN ] ---< [ FHIR OBSERVATION ]
           |
-          +---[ METRICS ] (Embedded Map from AI Result)
+          +---[ METRICS ]
           |
-          +---[ RECOMMENDATIONS ] (Embedded Map)
+          +---[ RECOMMENDATIONS ]
 ```

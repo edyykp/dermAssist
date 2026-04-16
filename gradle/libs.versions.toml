@@ -18,6 +18,7 @@ hilt = "2.52"
 hiltNavigationCompose = "1.2.0"
 playServicesAuth = "21.3.0"
 playServicesIntegrity = "1.4.0"
+hapiFhir = "6.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +51,7 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 play-integrity = { group = "com.google.android.play", name = "integrity", version.ref = "playServicesIntegrity" }
+hapi-fhir-r4 = { group = "ca.uhn.hapi.fhir", name = "hapi-fhir-structures-r4", version.ref = "hapiFhir" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
