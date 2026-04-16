@@ -27,7 +27,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.ui.components.ButtonVariant
 import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.components.LoadingOverlay
-import com.ehealth.dermassist.ui.features.report.model.ConditionSeverity
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
 import com.ehealth.dermassist.ui.features.report.model.SkinRecommendation
@@ -246,17 +245,10 @@ private fun DetectedConditionsSection(conditions: List<SkinCondition>) {
 private fun ConditionChip(condition: SkinCondition) {
     val dimens = MaterialTheme.dimens
 
-    val (bgColor, dotColor, textColor) =
-        when (condition.severity) {
-            ConditionSeverity.CONCERN -> Triple(IconBgRed, ErrorRed, ErrorRed)
-            ConditionSeverity.MODERATE -> Triple(BadgeOrangeBg, BadgeOrangeText, BadgeOrangeText)
-            ConditionSeverity.GOOD -> Triple(IconBgGreen, PrimaryGreen, PrimaryGreen)
-        }
-
     Box(
         modifier =
             Modifier.clip(RoundedCornerShape(dimens.radiusHuge))
-                .background(bgColor)
+                .background(condition.bgColor)
                 .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
     ) {
         Row(
@@ -265,13 +257,15 @@ private fun ConditionChip(condition: SkinCondition) {
         ) {
             Box(
                 modifier =
-                    Modifier.size(dimens.grid075).clip(RoundedCornerShape(50)).background(dotColor)
+                    Modifier.size(dimens.grid075)
+                        .clip(RoundedCornerShape(50))
+                        .background(condition.textColor)
             )
             Text(
                 text = condition.label,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = textColor,
+                color = condition.textColor,
             )
         }
     }

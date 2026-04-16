@@ -47,8 +47,9 @@ class HistoryScreenViewModel @Inject constructor(private val scanRepository: Sca
                                 time = time,
                                 scanTitle = entity.scanArea,
                                 conditions =
-                                    entity.conditions.map {
-                                        HistoryConditionTag(it, IconBgGreen, PrimaryGreen)
+                                    entity.conditions.map { label ->
+                                        val (bg, text) = getConditionColors(label)
+                                        HistoryConditionTag(label, bg, text)
                                     },
                                 accentColor = PrimaryGreen,
                                 accentBgColor = IconBgGreen,

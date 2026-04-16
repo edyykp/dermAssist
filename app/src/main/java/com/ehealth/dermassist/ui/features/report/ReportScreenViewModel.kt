@@ -16,6 +16,7 @@ import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
 import com.ehealth.dermassist.ui.features.report.model.SkinRecommendation
 import com.ehealth.dermassist.ui.features.report.model.SkinReport
+import com.ehealth.dermassist.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,8 +46,14 @@ class ReportScreenViewModel @Inject constructor(private val scanRepository: Scan
                                 scanArea = entity.scanArea,
                                 overallScore = entity.overallScore,
                                 conditions =
-                                    entity.conditions.map {
-                                        SkinCondition(it, ConditionSeverity.GOOD)
+                                    entity.conditions.map { label ->
+                                        val (bg, text) = getConditionColors(label)
+                                        SkinCondition(
+                                            label = label,
+                                            severity = ConditionSeverity.GOOD,
+                                            bgColor = bg,
+                                            textColor = text,
+                                        )
                                     },
                                 metrics =
                                     entity.metrics.map { metric ->

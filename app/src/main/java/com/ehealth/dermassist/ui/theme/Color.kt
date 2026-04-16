@@ -38,3 +38,15 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+// Helper for dynamic condition colors
+fun getConditionColors(label: String): Pair<Color, Color> {
+    val hash = label.lowercase().hashCode()
+    return when (hash % 5) {
+        0 -> IconBgGreen to PrimaryGreen
+        1 -> IconBgBlue to PrimaryBlue
+        2 -> IconBgPurple to PillPurple
+        3 -> BadgeOrangeBg to BadgeOrangeText
+        else -> IconBgRed to ErrorRed
+    }
+}
