@@ -11,6 +11,7 @@ import androidx.core.graphics.toColorInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ehealth.dermassist.domain.repository.ScanRepository
+import com.ehealth.dermassist.ui.LoadingStateDelegate
 import com.ehealth.dermassist.ui.features.report.model.ConditionSeverity
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
@@ -25,11 +26,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ScanDetailViewModel @Inject constructor(private val scanRepository: ScanRepository) :
-    ViewModel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
+class ScanDetailViewModel
+@Inject
+constructor(
+    private val scanRepository: ScanRepository,
+    private val loadingStateDelegate: LoadingStateDelegate,
+) : ViewModel() {
     private val _scanReport = MutableStateFlow<SkinReport?>(null)
     val scanReport: StateFlow<SkinReport?> = _scanReport.asStateFlow()
 
@@ -37,7 +39,7 @@ class ScanDetailViewModel @Inject constructor(private val scanRepository: ScanRe
         if (userId.isBlank() || scanId.isBlank()) return
 
         viewModelScope.launch {
-            _isLoading.value = true
+            loadingStateDelegate.setLoading(true)
             val entity = scanRepository.getScanDetails(userId, scanId)
             _scanReport.value =
                 entity?.let {
@@ -75,7 +77,7 @@ class ScanDetailViewModel @Inject constructor(private val scanRepository: ScanRe
                             },
                     )
                 }
-            _isLoading.value = false
+            loadingStateDelegate.setLoading(false)
         }
     }
 

@@ -22,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ehealth.dermassist.ui.components.LoadingOverlay
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
 import com.ehealth.dermassist.ui.features.report.model.SkinRecommendation
@@ -36,53 +35,43 @@ fun ScanDetailScreen(
     viewModel: ScanDetailViewModel = hiltViewModel(),
 ) {
     val dimens = MaterialTheme.dimens
-    val loading by viewModel.isLoading.collectAsState()
     val report by viewModel.scanReport.collectAsState()
 
     LaunchedEffect(userId, scanId) { viewModel.loadScanDetail(userId, scanId) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier.fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .verticalScroll(rememberScrollState())
-        ) {
+    Column(
+        modifier =
+            Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(dimens.md))
+
+        ScanDetailTopBar(onBackClick = onBackClick)
+
+        Spacer(modifier = Modifier.height(dimens.md))
+
+        report?.let { reportData ->
+            ScanDateBadge(date = reportData.scanDate)
+
             Spacer(modifier = Modifier.height(dimens.md))
 
-            ScanDetailTopBar(onBackClick = onBackClick)
+            ScanPreviewCard(scanArea = reportData.scanArea, overallScore = reportData.overallScore)
 
             Spacer(modifier = Modifier.height(dimens.md))
 
-            report?.let { reportData ->
-                ScanDateBadge(date = reportData.scanDate)
+            DetectedConditionsSection(conditions = reportData.conditions)
 
-                Spacer(modifier = Modifier.height(dimens.md))
+            Spacer(modifier = Modifier.height(dimens.md))
 
-                ScanPreviewCard(
-                    scanArea = reportData.scanArea,
-                    overallScore = reportData.overallScore,
-                )
+            SkinMetricsCard(metrics = reportData.metrics)
 
-                Spacer(modifier = Modifier.height(dimens.md))
+            Spacer(modifier = Modifier.height(dimens.md))
 
-                DetectedConditionsSection(conditions = reportData.conditions)
-
-                Spacer(modifier = Modifier.height(dimens.md))
-
-                SkinMetricsCard(metrics = reportData.metrics)
-
-                Spacer(modifier = Modifier.height(dimens.md))
-
-                RecommendationsCard(recommendations = reportData.recommendations)
-            }
-
-            Spacer(modifier = Modifier.height(dimens.grid3))
+            RecommendationsCard(recommendations = reportData.recommendations)
         }
 
-        if (loading) {
-            LoadingOverlay()
-        }
+        Spacer(modifier = Modifier.height(dimens.grid3))
     }
 }
 
