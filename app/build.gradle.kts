@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,14 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+// Load local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+val skinApiKey: String = localProperties.getProperty("SKIN_ANALYSIS_API_KEY") ?: "\"\""
 
 android {
     namespace = "com.ehealth.dermassist"
@@ -19,6 +29,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Inject the API key into BuildConfig
+        buildConfigField("String", "SKIN_ANALYSIS_API_KEY", skinApiKey)
     }
 
     buildTypes {
@@ -47,7 +60,6 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            // HAPI FHIR needs these
             pickFirsts += "META-INF/license.txt"
             pickFirsts += "META-INF/notice.txt"
             pickFirsts += "META-INF/ASL2.0"
@@ -80,6 +92,15 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.play.integrity)
     implementation(libs.hapi.fhir.r4)
+
+    // Retrofit & Moshi
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.moshi)
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
+    ksp(libs.moshi.kotlin.codegen)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 
     // Hilt
     implementation(libs.hilt.android)

@@ -19,6 +19,9 @@ hiltNavigationCompose = "1.2.0"
 playServicesAuth = "21.3.0"
 playServicesIntegrity = "1.4.0"
 hapiFhir = "6.10.0"
+retrofit = "2.9.0"
+okhttp = "4.12.0"
+moshi = "1.15.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,6 +55,13 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 play-integrity = { group = "com.google.android.play", name = "integrity", version.ref = "playServicesIntegrity" }
 hapi-fhir-r4 = { group = "ca.uhn.hapi.fhir", name = "hapi-fhir-structures-r4", version.ref = "hapiFhir" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
+moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
+moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
