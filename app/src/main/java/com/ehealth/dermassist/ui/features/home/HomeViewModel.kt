@@ -162,10 +162,7 @@ constructor(
         val conditions =
             results?.output?.map {
                 ConditionEntity(
-                    label = it.type
-                        .replace("_", " ")
-                        .replace(" v2", "")
-                        .capitalize(),
+                    label = it.type.replace("_", " ").replace(" v2", "").capitalize(),
                     score = it.uiScore ?: it.rawScore?.toInt() ?: it.score?.toInt() ?: 0,
                     region = it.region ?: "whole",
                     maskUrl = it.maskUrls?.firstOrNull(),

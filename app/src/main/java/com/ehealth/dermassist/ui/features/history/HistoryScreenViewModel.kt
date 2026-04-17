@@ -45,6 +45,7 @@ constructor(
                             val (date, time) = formatDateTime(entity.createdAt)
                             ScanHistoryItem(
                                 id = entity.id,
+                                imageUrl = entity.conditions[0].maskUrl ?: "",
                                 date = date,
                                 time = time,
                                 scanTitle = entity.scanArea,

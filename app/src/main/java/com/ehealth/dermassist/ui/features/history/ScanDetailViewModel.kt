@@ -50,6 +50,7 @@ constructor(
                         scanDate = formatFullDate(it.createdAt),
                         scanArea = it.scanArea,
                         overallScore = it.overallScore,
+                        imageUrl = it.conditions[0].maskUrl ?: "",
                         skinAge = it.skinAge,
                         skinType = it.skinType,
                         conditions =

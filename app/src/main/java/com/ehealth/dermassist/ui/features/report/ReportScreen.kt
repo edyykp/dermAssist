@@ -20,12 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.ehealth.dermassist.ui.components.ButtonVariant
 import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
@@ -62,6 +64,7 @@ fun ReportScreen(
                 overallScore = reportData.overallScore,
                 skinAge = reportData.skinAge,
                 skinType = reportData.skinType,
+                imageUrl = reportData.imageUrl,
             )
 
             Spacer(modifier = Modifier.height(dimens.md))
@@ -117,7 +120,13 @@ private fun ReportTopBar(date: String) {
 }
 
 @Composable
-private fun ScanPreviewCard(scanArea: String, overallScore: Int, skinAge: Int?, skinType: String) {
+private fun ScanPreviewCard(
+    scanArea: String,
+    overallScore: Int,
+    skinAge: Int?,
+    skinType: String,
+    imageUrl: String,
+) {
     val dimens = MaterialTheme.dimens
 
     Card(
@@ -130,7 +139,7 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int, skinAge: Int?, 
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .height(160.dp)
+                        .height(180.dp)
                         .background(
                             brush =
                                 Brush.linearGradient(
@@ -142,12 +151,22 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int, skinAge: Int?, 
                                 )
                         )
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Face,
-                    contentDescription = "Scan preview",
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                    modifier = Modifier.size(dimens.xl).align(Alignment.Center),
-                )
+                if (imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Scan preview",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.Face,
+                        contentDescription = "Scan preview placeholder",
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                        modifier = Modifier.size(dimens.xl).align(Alignment.Center),
+                    )
+                }
+
                 Row(
                     modifier =
                         Modifier.fillMaxWidth()
@@ -155,7 +174,7 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int, skinAge: Int?, 
                             .background(
                                 brush =
                                     Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, Color(0x66000000))
+                                        colors = listOf(Color.Transparent, Color(0x99000000))
                                     )
                             )
                             .padding(horizontal = dimens.md, vertical = dimens.grid15),

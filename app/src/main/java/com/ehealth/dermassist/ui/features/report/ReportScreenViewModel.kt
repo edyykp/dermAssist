@@ -50,6 +50,7 @@ constructor(
                                 scanDate = formatFullDate(entity.createdAt),
                                 scanArea = entity.scanArea,
                                 overallScore = entity.overallScore,
+                                imageUrl = entity.conditions[0].maskUrl ?: "",
                                 skinAge = entity.skinAge,
                                 skinType = entity.skinType,
                                 conditions =

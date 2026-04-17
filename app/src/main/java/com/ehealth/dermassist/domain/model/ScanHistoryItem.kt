@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 data class ScanHistoryItem(
     val id: String,
+    val imageUrl: String,
     val date: String,
     val time: String,
     val scanTitle: String,

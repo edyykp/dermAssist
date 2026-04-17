@@ -17,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.ehealth.dermassist.domain.model.HistoryConditionTag
 import com.ehealth.dermassist.domain.model.ScanHistoryItem
 import com.ehealth.dermassist.ui.components.ButtonVariant
@@ -136,11 +138,11 @@ private fun ScanHistoryCard(scan: ScanHistoryItem, onClick: () -> Unit) {
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Face,
-                    contentDescription = null,
-                    tint = scan.accentColor,
-                    modifier = Modifier.size(dimens.grid3),
+                AsyncImage(
+                    model = scan.imageUrl,
+                    contentDescription = "Scan preview",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
                 )
             }
 
@@ -164,7 +166,7 @@ private fun ScanHistoryCard(scan: ScanHistoryItem, onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(dimens.xs))
                 // Condition tags
                 Row(horizontalArrangement = Arrangement.spacedBy(dimens.grid075)) {
-                    scan.conditions.forEach { tag -> HistoryTag(tag = tag) }
+                    scan.conditions.take(4).forEach { tag -> HistoryTag(tag = tag) }
                 }
             }
 

@@ -136,7 +136,20 @@ fun MainScreen(
                 startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding),
             ) {
-                composable(Screen.Home.route) { HomeScreen(user) }
+                composable(Screen.Home.route) {
+                    HomeScreen(
+                        user = user,
+                        onScanSuccess = {
+                            navController.navigate(Screen.Report.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                    )
+                }
                 composable(Screen.Report.route) {
                     ReportScreen(
                         userId = user?.id ?: "",

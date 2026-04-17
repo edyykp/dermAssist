@@ -34,7 +34,11 @@ import java.io.File
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    user: User? = null,
+    onScanSuccess: () -> Unit = {},
+    viewModel: HomeViewModel = hiltViewModel(),
+) {
     val dimens = MaterialTheme.dimens
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -66,6 +70,8 @@ fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
             snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Long)
         }
     }
+
+    LaunchedEffect(Unit) { viewModel.scanSuccessEvent.collectLatest { onScanSuccess() } }
 
     // Root container with background color to eliminate white padding gaps
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {

@@ -1,8 +1,10 @@
 package com.ehealth.dermassist.ui.features.history
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -18,10 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
 import com.ehealth.dermassist.ui.features.report.model.SkinMetric
 import com.ehealth.dermassist.ui.features.report.model.SkinRecommendation
@@ -39,39 +43,47 @@ fun ScanDetailScreen(
 
     LaunchedEffect(userId, scanId) { viewModel.loadScanDetail(userId, scanId) }
 
-    Column(
-        modifier =
-            Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(dimens.md))
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(dimens.md))
 
-        ScanDetailTopBar(onBackClick = onBackClick)
-
-        Spacer(modifier = Modifier.height(dimens.md))
-
-        report?.let { reportData ->
-            ScanDateBadge(date = reportData.scanDate)
+            ScanDetailTopBar(onBackClick = onBackClick)
 
             Spacer(modifier = Modifier.height(dimens.md))
 
-            ScanPreviewCard(scanArea = reportData.scanArea, overallScore = reportData.overallScore)
+            report?.let { reportData ->
+                ScanDateBadge(date = reportData.scanDate)
 
-            Spacer(modifier = Modifier.height(dimens.md))
+                Spacer(modifier = Modifier.height(dimens.md))
 
-            DetectedConditionsSection(conditions = reportData.conditions)
+                ScanPreviewCard(
+                    scanArea = reportData.scanArea,
+                    overallScore = reportData.overallScore,
+                    skinAge = reportData.skinAge,
+                    skinType = reportData.skinType,
+                    imageUrl = reportData.imageUrl,
+                )
 
-            Spacer(modifier = Modifier.height(dimens.md))
+                Spacer(modifier = Modifier.height(dimens.md))
 
-            SkinMetricsCard(metrics = reportData.metrics)
+                DetectedConditionsSection(conditions = reportData.conditions)
 
-            Spacer(modifier = Modifier.height(dimens.md))
+                Spacer(modifier = Modifier.height(dimens.md))
 
-            RecommendationsCard(recommendations = reportData.recommendations)
+                SkinMetricsCard(metrics = reportData.metrics)
+
+                Spacer(modifier = Modifier.height(dimens.md))
+
+                RecommendationsCard(recommendations = reportData.recommendations)
+            }
+
+            Spacer(modifier = Modifier.height(dimens.grid3))
         }
-
-        Spacer(modifier = Modifier.height(dimens.grid3))
     }
 }
 
@@ -119,7 +131,13 @@ private fun ScanDateBadge(date: String) {
 }
 
 @Composable
-private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
+private fun ScanPreviewCard(
+    scanArea: String,
+    overallScore: Int,
+    skinAge: Int?,
+    skinType: String,
+    imageUrl: String,
+) {
     val dimens = MaterialTheme.dimens
 
     Card(
@@ -132,7 +150,7 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .height(160.dp)
+                        .height(180.dp)
                         .background(
                             brush =
                                 Brush.linearGradient(
@@ -144,12 +162,22 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
                                 )
                         )
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Face,
-                    contentDescription = "Scan preview",
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                    modifier = Modifier.size(dimens.xl).align(Alignment.Center),
-                )
+                if (imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Scan preview",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.Face,
+                        contentDescription = "Scan preview placeholder",
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                        modifier = Modifier.size(dimens.xl).align(Alignment.Center),
+                    )
+                }
+
                 Row(
                     modifier =
                         Modifier.fillMaxWidth()
@@ -157,7 +185,7 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
                             .background(
                                 brush =
                                     Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, Color(0x66000000))
+                                        colors = listOf(Color.Transparent, Color(0x99000000))
                                     )
                             )
                             .padding(horizontal = dimens.md, vertical = dimens.grid15),
@@ -173,32 +201,36 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
                 }
             }
 
+            // Summary Info Row
             Row(
                 modifier = Modifier.fillMaxWidth().padding(dimens.md),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "Skin Health Score",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Box(
-                    modifier =
-                        Modifier.clip(RoundedCornerShape(dimens.radiusMd))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
-                ) {
-                    Text(
-                        text = "$overallScore / 100",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+                SummaryItem(label = "Health Score", value = "$overallScore/100")
+                SummaryItem(label = "Skin Type", value = skinType)
+                skinAge?.let { SummaryItem(label = "Skin Age", value = it.toString()) }
             }
         }
+    }
+}
+
+@Composable
+private fun SummaryItem(label: String, value: String) {
+    val dimens = MaterialTheme.dimens
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(dimens.xxs))
+        Text(
+            text = value,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
@@ -214,44 +246,66 @@ private fun DetectedConditionsSection(conditions: List<SkinCondition>) {
             color = MaterialTheme.colorScheme.onBackground,
         )
         Spacer(modifier = Modifier.height(dimens.sm))
-        val chunked = conditions.chunked(2)
-        chunked.forEach { row ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(dimens.sm),
-                modifier = Modifier.padding(bottom = dimens.sm),
-            ) {
-                row.forEach { condition -> ConditionChip(condition = condition) }
-            }
+        conditions.forEach { condition ->
+            ConditionDetailCard(condition = condition)
+            Spacer(modifier = Modifier.height(dimens.sm))
         }
     }
 }
 
 @Composable
-private fun ConditionChip(condition: SkinCondition) {
+private fun ConditionDetailCard(condition: SkinCondition) {
     val dimens = MaterialTheme.dimens
 
-    Box(
-        modifier =
-            Modifier.clip(RoundedCornerShape(dimens.radiusHuge))
-                .background(condition.bgColor)
-                .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(dimens.radiusLg),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        border =
+            BorderStroke(dimens.borderThin, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)),
     ) {
         Row(
+            modifier = Modifier.padding(dimens.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimens.grid075),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier =
+                            Modifier.size(dimens.grid1)
+                                .clip(CircleShape)
+                                .background(condition.textColor)
+                    )
+                    Spacer(modifier = Modifier.width(dimens.sm))
+                    Text(
+                        text = condition.label,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
+                Spacer(modifier = Modifier.height(dimens.xxs))
+                Text(
+                    text = "Region: ${condition.region.replaceFirstChar { it.uppercase() }}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             Box(
                 modifier =
-                    Modifier.size(dimens.grid075)
-                        .clip(RoundedCornerShape(50))
-                        .background(condition.textColor)
-            )
-            Text(
-                text = condition.label,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = condition.textColor,
-            )
+                    Modifier.clip(RoundedCornerShape(dimens.radiusMd))
+                        .background(condition.bgColor)
+                        .padding(horizontal = dimens.sm, vertical = dimens.xxs)
+            ) {
+                Text(
+                    text = "Score: ${condition.score}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = condition.textColor,
+                )
+            }
         }
     }
 }
@@ -268,7 +322,7 @@ private fun SkinMetricsCard(metrics: List<SkinMetric>) {
     ) {
         Column(modifier = Modifier.padding(dimens.md)) {
             Text(
-                text = "Skin Metrics",
+                text = "Health Metrics",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -301,7 +355,7 @@ private fun SkinMetricRow(metric: SkinMetric) {
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "${metric.value}%",
+                text = "${metric.value}/100",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = metric.color,

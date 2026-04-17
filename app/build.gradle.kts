@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation(libs.firebase.appcheck.playintegrity)
     implementation(libs.firebase.appcheck.debug)
 
@@ -101,6 +102,9 @@ dependencies {
     ksp(libs.moshi.kotlin.codegen)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    
+    // Coil
+    implementation(libs.coil.compose)
 
     // Hilt
     implementation(libs.hilt.android)
