@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.ehealth.dermassist.ui.components.ButtonVariant
 import com.ehealth.dermassist.ui.components.DermButton
 import com.ehealth.dermassist.ui.features.report.model.SkinCondition
@@ -128,6 +130,7 @@ private fun ScanPreviewCard(
     imageUrl: String,
 ) {
     val dimens = MaterialTheme.dimens
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = dimens.grid25),
@@ -153,7 +156,12 @@ private fun ScanPreviewCard(
             ) {
                 if (imageUrl.isNotBlank()) {
                     AsyncImage(
-                        model = imageUrl,
+                        model =
+                            ImageRequest.Builder(context)
+                                .data(imageUrl)
+                                .crossfade(true)
+                                .size(300) // Lower quality / smaller size for fast loading
+                                .build(),
                         contentDescription = "Scan preview",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,

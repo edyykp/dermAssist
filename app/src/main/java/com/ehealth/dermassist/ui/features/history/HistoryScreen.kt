@@ -18,12 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.ehealth.dermassist.domain.model.HistoryConditionTag
 import com.ehealth.dermassist.domain.model.ScanHistoryItem
 import com.ehealth.dermassist.ui.components.ButtonVariant
@@ -109,6 +111,7 @@ private fun HistoryHeader(totalScans: Int) {
 @Composable
 private fun ScanHistoryCard(scan: ScanHistoryItem, onClick: () -> Unit) {
     val dimens = MaterialTheme.dimens
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
@@ -138,12 +141,26 @@ private fun ScanHistoryCard(scan: ScanHistoryItem, onClick: () -> Unit) {
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                AsyncImage(
-                    model = scan.imageUrl,
-                    contentDescription = "Scan preview",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
+                if (scan.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model =
+                            ImageRequest.Builder(context)
+                                .data(scan.imageUrl)
+                                .crossfade(true)
+                                .size(100) // Small thumbnail size for fast loading in list
+                                .build(),
+                        contentDescription = "Scan preview",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.Face,
+                        contentDescription = null,
+                        tint = scan.accentColor,
+                        modifier = Modifier.size(dimens.grid3),
+                    )
+                }
             }
 
             // ── Info ──────────────────────────────────────────────────────────
