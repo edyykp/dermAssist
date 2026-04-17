@@ -63,9 +63,10 @@ fun SkinAnalysisResponse.getMaskUrlByType(type: String, region: String = "whole"
         ?.firstOrNull()
 }
 
-fun SkinAnalysisResponse.getSkinAge(): Int? {
+fun SkinAnalysisResponse.getSkinAge(): Int {
     return data.results?.skinAge
         ?: data.results?.output?.find { it.type == "skin_age" }?.score?.toInt()
+        ?: 0
 }
 
 fun SkinAnalysisResponse.getOverallScore(): Double? {

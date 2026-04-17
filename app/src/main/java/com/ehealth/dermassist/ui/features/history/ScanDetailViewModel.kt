@@ -32,6 +32,9 @@ constructor(
     private val scanRepository: ScanRepository,
     private val loadingStateDelegate: LoadingStateDelegate,
 ) : ViewModel() {
+
+    val isLoading: StateFlow<Boolean> = loadingStateDelegate.isLoading
+
     private val _scanReport = MutableStateFlow<SkinReport?>(null)
     val scanReport: StateFlow<SkinReport?> = _scanReport.asStateFlow()
 
@@ -47,12 +50,16 @@ constructor(
                         scanDate = formatFullDate(it.createdAt),
                         scanArea = it.scanArea,
                         overallScore = it.overallScore,
+                        skinAge = it.skinAge,
+                        skinType = it.skinType,
                         conditions =
-                            it.conditions.map { label ->
-                                val (bg, text) = getConditionColors(label)
+                            it.conditions.map { cond ->
+                                val (bg, text) = getConditionColors(cond.label)
                                 SkinCondition(
-                                    label = label,
-                                    severity = ConditionSeverity.GOOD,
+                                    label = cond.label,
+                                    score = cond.score,
+                                    region = cond.region,
+                                    severity = mapScoreToSeverity(cond.score),
                                     bgColor = bg,
                                     textColor = text,
                                 )
@@ -105,6 +112,14 @@ constructor(
             "warning" -> Icons.Outlined.Warning
             "check_circle" -> Icons.Outlined.CheckCircle
             else -> Icons.Outlined.Info
+        }
+    }
+
+    private fun mapScoreToSeverity(score: Int): ConditionSeverity {
+        return when {
+            score >= 80 -> ConditionSeverity.GOOD
+            score >= 60 -> ConditionSeverity.MODERATE
+            else -> ConditionSeverity.CONCERN
         }
     }
 }

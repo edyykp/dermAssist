@@ -1,8 +1,10 @@
 package com.ehealth.dermassist.ui.features.report
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -55,7 +57,12 @@ fun ReportScreen(
 
             Spacer(modifier = Modifier.height(dimens.md))
 
-            ScanPreviewCard(scanArea = reportData.scanArea, overallScore = reportData.overallScore)
+            ScanPreviewCard(
+                scanArea = reportData.scanArea,
+                overallScore = reportData.overallScore,
+                skinAge = reportData.skinAge,
+                skinType = reportData.skinType,
+            )
 
             Spacer(modifier = Modifier.height(dimens.md))
 
@@ -110,7 +117,7 @@ private fun ReportTopBar(date: String) {
 }
 
 @Composable
-private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
+private fun ScanPreviewCard(scanArea: String, overallScore: Int, skinAge: Int?, skinType: String) {
     val dimens = MaterialTheme.dimens
 
     Card(
@@ -177,32 +184,36 @@ private fun ScanPreviewCard(scanArea: String, overallScore: Int) {
                 }
             }
 
+            // Summary Info Row
             Row(
                 modifier = Modifier.fillMaxWidth().padding(dimens.md),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "Overall Skin Score",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Box(
-                    modifier =
-                        Modifier.clip(RoundedCornerShape(dimens.radiusMd))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
-                ) {
-                    Text(
-                        text = "$overallScore / 100",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+                SummaryItem(label = "Health Score", value = "$overallScore/100")
+                SummaryItem(label = "Skin Type", value = skinType)
+                skinAge?.let { SummaryItem(label = "Skin Age", value = it.toString()) }
             }
         }
+    }
+}
+
+@Composable
+private fun SummaryItem(label: String, value: String) {
+    val dimens = MaterialTheme.dimens
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(dimens.xxs))
+        Text(
+            text = value,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 
@@ -218,44 +229,66 @@ private fun DetectedConditionsSection(conditions: List<SkinCondition>) {
             color = MaterialTheme.colorScheme.onBackground,
         )
         Spacer(modifier = Modifier.height(dimens.sm))
-        val chunked = conditions.chunked(2)
-        chunked.forEach { row ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(dimens.sm),
-                modifier = Modifier.padding(bottom = dimens.sm),
-            ) {
-                row.forEach { condition -> ConditionChip(condition = condition) }
-            }
+        conditions.forEach { condition ->
+            ConditionDetailCard(condition = condition)
+            Spacer(modifier = Modifier.height(dimens.sm))
         }
     }
 }
 
 @Composable
-private fun ConditionChip(condition: SkinCondition) {
+private fun ConditionDetailCard(condition: SkinCondition) {
     val dimens = MaterialTheme.dimens
 
-    Box(
-        modifier =
-            Modifier.clip(RoundedCornerShape(dimens.radiusHuge))
-                .background(condition.bgColor)
-                .padding(horizontal = dimens.grid175, vertical = dimens.grid075)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(dimens.radiusLg),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        border =
+            BorderStroke(dimens.borderThin, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)),
     ) {
         Row(
+            modifier = Modifier.padding(dimens.md),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimens.grid075),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier =
+                            Modifier.size(dimens.grid1)
+                                .clip(CircleShape)
+                                .background(condition.textColor)
+                    )
+                    Spacer(modifier = Modifier.width(dimens.sm))
+                    Text(
+                        text = condition.label,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
+                Spacer(modifier = Modifier.height(dimens.xxs))
+                Text(
+                    text = "Region: ${condition.region.replaceFirstChar { it.uppercase() }}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             Box(
                 modifier =
-                    Modifier.size(dimens.grid075)
-                        .clip(RoundedCornerShape(50))
-                        .background(condition.textColor)
-            )
-            Text(
-                text = condition.label,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = condition.textColor,
-            )
+                    Modifier.clip(RoundedCornerShape(dimens.radiusMd))
+                        .background(condition.bgColor)
+                        .padding(horizontal = dimens.sm, vertical = dimens.xxs)
+            ) {
+                Text(
+                    text = "Score: ${condition.score}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = condition.textColor,
+                )
+            }
         }
     }
 }
@@ -272,7 +305,7 @@ private fun SkinMetricsCard(metrics: List<SkinMetric>) {
     ) {
         Column(modifier = Modifier.padding(dimens.md)) {
             Text(
-                text = "Skin Metrics",
+                text = "Health Metrics",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,

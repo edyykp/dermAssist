@@ -49,9 +49,9 @@ constructor(
                                 time = time,
                                 scanTitle = entity.scanArea,
                                 conditions =
-                                    entity.conditions.map { label ->
-                                        val (bg, text) = getConditionColors(label)
-                                        HistoryConditionTag(label, bg, text)
+                                    entity.conditions.map { condition ->
+                                        val (bg, text) = getConditionColors(condition.label)
+                                        HistoryConditionTag(condition.label, bg, text)
                                     },
                                 accentColor = PrimaryGreen,
                                 accentBgColor = IconBgGreen,

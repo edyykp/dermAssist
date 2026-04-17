@@ -7,7 +7,15 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.ehealth.dermassist.data.model.ConditionEntity
+import com.ehealth.dermassist.data.model.MetricEntity
+import com.ehealth.dermassist.data.model.ScanEntity
+import com.ehealth.dermassist.domain.repository.AppRepository
+import com.ehealth.dermassist.domain.repository.ScanRepository
 import com.ehealth.dermassist.network.SkinAnalysisRepository
+import com.ehealth.dermassist.network.model.SkinAnalysisResponse
+import com.ehealth.dermassist.network.model.getOverallScore
+import com.ehealth.dermassist.network.model.getSkinAge
 import com.ehealth.dermassist.ui.LoadingStateDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,6 +24,7 @@ import kotlin.math.min
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -25,11 +34,12 @@ constructor(
     application: Application,
     private val loadingStateDelegate: LoadingStateDelegate,
     private val skinAnalysisRepository: SkinAnalysisRepository,
+    private val scanRepository: ScanRepository,
+    private val appRepository: AppRepository,
 ) : AndroidViewModel(application) {
 
     private val TAG = "HomeViewModel"
 
-    // Limits based on Perfect Corp S2S API documentation for HD Skincare
     private val MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
     private val SUPPORTED_MIME_TYPES = listOf("image/jpeg", "image/png")
     private val MAX_LONG_SIDE = 4096
@@ -38,6 +48,9 @@ constructor(
     private val _errorEvents = MutableSharedFlow<String>()
     val errorEvents: SharedFlow<String> = _errorEvents.asSharedFlow()
 
+    private val _scanSuccessEvent = MutableSharedFlow<Unit>()
+    val scanSuccessEvent: SharedFlow<Unit> = _scanSuccessEvent.asSharedFlow()
+
     fun processImage(uri: Uri?) {
         if (uri == null) return
 
@@ -45,13 +58,18 @@ constructor(
             loadingStateDelegate.setLoading(true)
 
             try {
+                val user = appRepository.getUser().first()
+                if (user == null) {
+                    _errorEvents.emit("User not logged in.")
+                    return@launch
+                }
+
                 val contentResolver = getApplication<Application>().contentResolver
 
                 // 1. Validate File Type
                 val contentType = contentResolver.getType(uri) ?: "image/jpeg"
                 if (!SUPPORTED_MIME_TYPES.contains(contentType)) {
                     _errorEvents.emit("Unsupported file format. Please use JPG or PNG.")
-                    loadingStateDelegate.setLoading(false)
                     return@launch
                 }
 
@@ -67,74 +85,102 @@ constructor(
 
                 if (bytes == null) {
                     _errorEvents.emit("Failed to read image data.")
-                    loadingStateDelegate.setLoading(false)
                     return@launch
                 }
 
                 // 4. Validate File Size
                 if (bytes.size > MAX_FILE_SIZE_BYTES) {
                     _errorEvents.emit("Image is too large (Max 10MB).")
-                    loadingStateDelegate.setLoading(false)
                     return@launch
                 }
 
-                // 5. Validate Dimensions (HD Skincare specs)
-                val options =
-                    BitmapFactory.Options().apply {
-                        inJustDecodeBounds = true // Don't load full bitmap into memory
-                    }
+                // 5. Validate Dimensions
+                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
-
-                val width = options.outWidth
-                val height = options.outHeight
-                val longSide = max(width, height)
-                val shortSide = min(width, height)
+                val longSide = max(options.outWidth, options.outHeight)
+                val shortSide = min(options.outWidth, options.outHeight)
 
                 if (longSide > MAX_LONG_SIDE || shortSide < MIN_SHORT_SIDE) {
-                    _errorEvents.emit(
-                        "Image dimensions out of range for HD analysis.\n" +
-                            "Required: Long side ≤ 4096px, Short side ≥ 1080px.\n" +
-                            "Detected: ${width}x${height}px"
-                    )
-                    loadingStateDelegate.setLoading(false)
+                    _errorEvents.emit("Image dimensions out of range for HD analysis.")
                     return@launch
                 }
 
-                // 6. Upload file to Perfect Corp API
-                val uploadResult =
-                    skinAnalysisRepository.uploadFile(
-                        imageBytes = bytes,
-                        fileName = fileName,
-                        contentType = contentType,
-                    )
+                // 6. Upload file
+                val uploadResult = skinAnalysisRepository.uploadFile(bytes, fileName, contentType)
 
                 uploadResult
                     .onSuccess { fileId ->
-                        Log.d(TAG, "File uploaded successfully. FileId: $fileId")
-
-                        // 7. Start analysis using the returned fileId
+                        // 7. Start analysis
                         val analysisResult = skinAnalysisRepository.startAnalysis(fileId)
 
                         analysisResult
                             .onSuccess { response ->
-                                Log.d(TAG, "Analysis completed successfully")
-                                // TODO: Map 'response' to your ScanEntity and save to Firestore
+                                // 8. Map to ScanEntity and Save
+                                val scanEntity =
+                                    mapResponseToEntity(user.id, uri.toString(), response)
+                                val saveResult = scanRepository.addScan(scanEntity)
+
+                                if (saveResult.isSuccess) {
+                                    _scanSuccessEvent.emit(Unit)
+                                } else {
+                                    _errorEvents.emit("Failed to save scan results.")
+                                }
                             }
                             .onFailure { error ->
-                                Log.e(TAG, "Analysis failed: ${error.message}", error)
                                 _errorEvents.emit("Analysis failed: ${error.message}")
                             }
                     }
-                    .onFailure { error ->
-                        Log.e(TAG, "Upload failed: ${error.message}", error)
-                        _errorEvents.emit("Upload failed: ${error.message}")
-                    }
+                    .onFailure { error -> _errorEvents.emit("Upload failed: ${error.message}") }
             } catch (e: Exception) {
-                Log.e(TAG, "Unexpected error processing image", e)
+                Log.e(TAG, "Error processing image", e)
                 _errorEvents.emit("An unexpected error occurred.")
             } finally {
                 loadingStateDelegate.setLoading(false)
             }
         }
     }
+
+    private fun mapResponseToEntity(
+        userId: String,
+        localUri: String,
+        response: SkinAnalysisResponse,
+    ): ScanEntity {
+        val results = response.data.results
+
+        // Extract conditions (types starting with hd_)
+        val conditions =
+            results
+                ?.output
+                ?.filter { it.type.startsWith("hd_") }
+                ?.map {
+                    ConditionEntity(
+                        label = it.type.removePrefix("hd_").replace("_", " ").capitalize(),
+                        score = it.uiScore ?: it.rawScore?.toInt() ?: 0,
+                        region = it.region ?: "whole",
+                        maskUrl = it.maskUrls?.firstOrNull(),
+                    )
+                } ?: emptyList()
+
+        return ScanEntity(
+            userId = userId,
+            createdAt = System.currentTimeMillis(),
+            scanArea = "Face", // Default for HD Skincare API
+            overallScore = response.getOverallScore()?.toInt() ?: 0,
+            skinAge = response.getSkinAge(),
+            skinType = results?.skinType?.typeName ?: "Unknown",
+            imageUrl = localUri, // Ideally upload to Firebase Storage and use that URL
+            conditions = conditions,
+            metrics =
+                listOf(
+                    MetricEntity(
+                        "Skin Health",
+                        response.getOverallScore()?.toInt() ?: 0,
+                        "#1A6E5C",
+                    ),
+                    MetricEntity("Skin Age", response.getSkinAge() ?: 0, "#3B7DD8"),
+                ),
+        )
+    }
+
+    private fun String.capitalize() = this.replaceFirstChar { it.uppercase() }
 }

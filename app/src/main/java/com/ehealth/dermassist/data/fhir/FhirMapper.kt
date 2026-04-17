@@ -92,7 +92,7 @@ object FhirMapper {
                 .addInterpretation()
                 .addCoding()
                 .setSystem("http://snomed.info/sct") // Simplified SNOMED placeholder
-                .setDisplay(condition)
+                .setDisplay(condition.label)
         }
 
         // Image URL as an extension or related document

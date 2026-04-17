@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 
 data class SkinCondition(
     val label: String,
+    val score: Int,
+    val region: String,
     val severity: ConditionSeverity,
     val bgColor: Color,
     val textColor: Color,

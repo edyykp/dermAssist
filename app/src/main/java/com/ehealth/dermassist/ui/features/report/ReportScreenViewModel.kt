@@ -50,12 +50,16 @@ constructor(
                                 scanDate = formatFullDate(entity.createdAt),
                                 scanArea = entity.scanArea,
                                 overallScore = entity.overallScore,
+                                skinAge = entity.skinAge,
+                                skinType = entity.skinType,
                                 conditions =
-                                    entity.conditions.map { label ->
-                                        val (bg, text) = getConditionColors(label)
+                                    entity.conditions.map { cond ->
+                                        val (bg, text) = getConditionColors(cond.label)
                                         SkinCondition(
-                                            label = label,
-                                            severity = ConditionSeverity.GOOD,
+                                            label = cond.label,
+                                            score = cond.score,
+                                            region = cond.region,
+                                            severity = mapScoreToSeverity(cond.score),
                                             bgColor = bg,
                                             textColor = text,
                                         )
@@ -116,6 +120,14 @@ constructor(
             "warning" -> Icons.Outlined.Warning
             "check_circle" -> Icons.Outlined.CheckCircle
             else -> Icons.Outlined.Info
+        }
+    }
+
+    private fun mapScoreToSeverity(score: Int): ConditionSeverity {
+        return when {
+            score >= 80 -> ConditionSeverity.GOOD
+            score >= 60 -> ConditionSeverity.MODERATE
+            else -> ConditionSeverity.CONCERN
         }
     }
 }
