@@ -16,6 +16,8 @@ The DermAssist application is built using a modern Android development stack, em
     *   **Kotlin Coroutines & Flow:** Asynchronous programming and reactive data streams.
     *   **Jetpack Navigation:** Type-safe navigation management.
     *   **Credential Manager API:** Modern authentication (Google Sign-In).
+    *   **Coil:** Image loading library for rendering remote scan results.
+    *   **Retrofit & Moshi:** Networking stack for external AI API communication.
 
 *   **Backend & Storage (Firebase Ecosystem):**
     *   **Firebase Authentication:** Identity management (Email/Password, Google).
@@ -44,7 +46,7 @@ The DermAssist application is built using a modern Android development stack, em
 *   **Backend Infrastructure:**
     *   **Google Cloud Platform (GCP):** Managed serverless infrastructure (Firebase).
     *   **Cloud Firestore Clusters:** Geographically distributed NoSQL nodes.
-    *   **Perfect Corp Cloud:** Remote processing nodes for AI skin analysis.
+    *   **Perfect Corp Cloud:** Remote processing nodes for AI skin analysis (S3 for presigned image uploads).
 
 ---
 
@@ -56,12 +58,12 @@ The DermAssist application is built using a modern Android development stack, em
 *   **Operating System:** Android 7.0+
 *   **Role:** Client interface, image capture, local state management, and API gateway.
 *   **Components:**
-    *   **UI Layer:** Composable screens (Home, History, Report, Profile).
-    *   **ViewModels:** Business logic and state holders (e.g., `HomeViewModel`, `HistoryScreenViewModel`).
-    *   **Repositories:** `AppRepositoryImpl`, `ScanRepositoryImpl` (handling Firestore and External API data).
+    *   **UI Layer:** Composable screens (Home, History, Report, Profile, Scan Detail).
+    *   **ViewModels:** Business logic and state holders (e.g., `HomeViewModel`, `HistoryScreenViewModel`, `ScanDetailViewModel`).
+    *   **Repositories:** `AppRepositoryImpl`, `ScanRepositoryImpl`, `SkinAnalysisRepository` (orchestrating AI API workflow).
     *   **Local State:** `LoadingStateDelegate` (Global loading manager).
     *   **FHIR Mapping Layer:** `FhirMapper` (Converts internal models to HL7 FHIR resources).
-    *   **SDKs:** Firebase Auth SDK, Firestore SDK, Credential Manager.
+    *   **Network Stack:** Retrofit Service for skin analysis.
 
 #### Node 2: Firebase Backend (Cloud Infrastructure)
 *   **Operating System:** Managed Google Linux environment.
@@ -74,18 +76,20 @@ The DermAssist application is built using a modern Android development stack, em
 *   **Role:** External processing service for diagnostic analysis.
 *   **Components:**
     *   **AI Models:** Specialized neural networks for skin condition detection.
-    *   **API Interface:** RESTful endpoint for receiving image data and returning structured analysis.
+    *   **S3 Presigned Storage:** Temporary landing zone for uploaded images.
+    *   **API Interface:** RESTful endpoint for task management and result polling.
 
 ### b) Communication & Data Flow
 *   **Protocols:** 
-    *   **HTTPS/TLS:** Standard for all RESTful and SDK-based traffic, including external AI API calls.
+    *   **HTTPS/TLS:** Standard for all RESTful and SDK-based traffic.
+    *   **PUT (S3):** Used for direct binary upload to presigned URLs.
     *   **Firestore Binary Protocol:** Used for real-time synchronization.
 *   **Data Flow:**
     1.  **Auth Flow:** User authenticates via Google/Email -> Firebase Auth returns JWT.
-    2.  **Scan Flow (Capture):** Image captured -> Mobile device sends image to **Perfect Corp API** over HTTPS.
-    3.  **Scan Flow (Analysis):** Perfect Corp returns structured JSON results (conditions, scores).
+    2.  **Scan Flow (Upload):** App requests upload URL -> Receives S3 presigned URL -> App performs binary `PUT` upload.
+    3.  **Scan Flow (Analysis):** App sends `file_id` to **Perfect Corp API** -> Polls for `task_status == "success"`.
     4.  **Scan Flow (Storage):** App maps results to `ScanEntity` -> `ScanRepository` pushes to Firestore.
-    5.  **Interoperability Flow:** App uses `FhirMapper` to transform `ScanEntity` into a FHIR `Observation` for external medical systems.
+    5.  **Interoperability Flow:** App uses `FhirMapper` to transform `ScanEntity` into a FHIR `Observation`.
     6.  **Real-time Updates:** Firestore Snapshot Listeners push data updates to the `HistoryScreen` automatically.
 
 ---
@@ -104,7 +108,6 @@ The system uses a Document-Collection model in Cloud Firestore.
     *   `email` (String): User's email address.
     *   `age` (Number): User's age.
     *   `memberSince` (Timestamp): Registration date.
-*   **Relationships:** One-to-Many with **Scan**.
 
 #### Entity: Scan (Document)
 *   **Path:** `/users/{userId}/scans/{scanId}`
@@ -114,8 +117,10 @@ The system uses a Document-Collection model in Cloud Firestore.
     *   `createdAt` (Number): Timestamp of scan.
     *   `scanArea` (String): Body part scanned (e.g., "Face").
     *   `overallScore` (Number): Health score (0-100).
-    *   `conditions` (Array<String>): List of detected condition labels.
+    *   `skinAge` (Number): Estimated skin age.
+    *   `skinType` (String): Detected skin type (e.g., "Oily").
     *   `imageUrl` (String): Reference to stored image.
+    *   `conditions` (Array<Map>): List of `{ label, score, region, maskUrl }`.
     *   `metrics` (Array<Map>): List of `{ name, value, colorHex }`.
     *   `recommendations` (Array<Map>): List of `{ title, description, iconName, ... }`.
 
@@ -123,14 +128,7 @@ The system uses a Document-Collection model in Cloud Firestore.
 DermAssist implements a dedicated **FHIR Mapping Layer** (`FhirMapper.kt`) to ensure compatibility with global health information systems.
 
 *   **Patient Resource:** Maps internal `User` data to `Patient`.
-    *   `id` maps to FHIR ID.
-    *   `name` parsed into `family` and `given` components.
-    *   `email` mapped to `telecom`.
-*   **Observation Resource:** Maps `ScanEntity` to a structured `Observation`.
-    *   **Coding:** Uses **LOINC 86665-7** (Skin assessment) as the primary assessment code.
-    *   **Components:** Individual metrics (e.g., Hydration, Texture) are mapped as Observation components with percentage units (`%`).
-    *   **Interpretations:** Detected conditions are mapped using **SNOMED CT** placeholders in the interpretation field.
-    *   **Body Site:** `scanArea` is mapped to the `bodySite` field.
+*   **Observation Resource:** Maps `ScanEntity` to a structured `Observation` using **LOINC 86665-7** codes and **SNOMED CT** interpretations.
 
 ---
 
@@ -139,42 +137,24 @@ DermAssist implements a dedicated **FHIR Mapping Layer** (`FhirMapper.kt`) to en
 External systems can integrate with the DermAssist data layer via the following:
 
 *   **API Structure:** Firebase REST API or Admin SDK.
-*   **Authentication:** OAuth 2.0 / Firebase JWT.
-*   **Data Format:** JSON / FHIR-JSON.
-*   **FHIR Integration:** External medical systems can request data in FHIR R4 format. The `FhirMapper` utility generates the following structure for a scan:
-    ```json
-    {
-      "resourceType": "Observation",
-      "status": "final",
-      "code": {
-        "coding": [{"system": "http://loinc.org", "code": "86665-7"}]
-      },
-      "subject": { "reference": "Patient/user_123" },
-      "valueQuantity": { "value": 85, "unit": "Score" }
-    }
-    ```
+*   **External API Interface:** The Perfect Corp AI Skin Analysis API is consumed via a two-step process: (1) Metadata registration to obtain a presigned URL, (2) Direct binary `PUT` to S3-compatible storage.
 
 ---
 
 ## 6. Security, Privacy & GDPR Compliance
 
 ### a) Authentication & Authorization
-*   **Mechanism:** Firebase Authentication.
+*   **Mechanism:** Firebase Authentication with **Credential Manager API** integration.
 *   **Authorization:** Firestore Security Rules ensure that data is only accessible if `request.auth.uid == userId`.
 
 ### b) Data Encryption
-*   **In Transit:** Forced HTTPS/TLS for all communication, including transfers to the Perfect Corp API.
+*   **In Transit:** Forced HTTPS/TLS for all communication.
 *   **At Rest:** Automatic AES-256 encryption provided by Cloud Firestore.
 
 ### c) Privacy & GDPR
 *   **Data Collected:** Personal identity (Email, Name) and biometric-linked health data (Skin conditions).
-*   **AI Processing Privacy:** Images sent to Perfect Corp are processed in accordance with their HIPAA/GDPR compliance standards.
-*   **Consent:** Obtained via Onboarding/Splash screen flow before any image is sent for AI analysis.
+*   **Local Validation:** App performs client-side validation of image dimensions (HD: Long side ≤ 4096px, Short side ≥ 1080px) and format (JPG/PNG) to minimize data exposure and optimize bandwidth.
 *   **Right to Erase:** Users can invoke `clearUserData()`, which deletes both their Firestore profile and their Authentication record.
-
-### d) Incident Response Plan
-*   **Monitoring:** Firebase Cloud Logging and Audit Logs.
-*   **Strategy:** Automated alerts for unusual access patterns; immediate credential revocation via Google IAM.
 
 ---
 
@@ -186,18 +166,18 @@ External systems can integrate with the DermAssist data layer via the following:
 |                Node: Mobile Device (Android)          |
 |  +-------------------------------------------------+  |
 |  | Components: UI, ViewModels, Hilt, FhirMapper    |  |
-|  | SDKs: Firebase Auth, Firestore, HAPI FHIR       |  |
+|  | Networking: Retrofit, Coil, OkHttp (PUT/GET)    |  |
 |  +------------+-----------------------+---------------+  |
 |               |                       |               |
 |               | HTTPS (gRPC)          | HTTPS (REST)  |
-|               |                       |               |
+|               |                       | + PUT (S3)    |
 +---------------+-----------------------+---------------+
                 |                       |
 +---------------v---------------+       |  +---------------------------+
 |     Node: Firebase Cloud      |       |  |  Node: Perfect Corp API   |
 |  +-------------------------+  |       |  |  +---------------------+  |
-|  | - Auth Service          |  |       +-->  | AI Skin Analysis    |  |
-|  | - Firestore (NoSQL)     |  |          |  +---------------------+  |
+|  | - Auth Service          |  |       +-->  | - S3 Presigned URL  |  |
+|  | - Firestore (NoSQL)     |  |          |  | - AI Skin analysis  |  |
 |  +-------------------------+  |          +---------------------------+
 +-------------------------------+
 ```
@@ -207,8 +187,13 @@ External systems can integrate with the DermAssist data layer via the following:
 [ USER ] ---< [ FHIR PATIENT ]
   |
   +---< [ SCAN ] ---< [ FHIR OBSERVATION ]
+          |-- overallScore
+          |-- skinAge
+          |-- skinType
           |
-          +---[ METRICS ]
+          +---[ CONDITION MAP ] (label, score, region, maskUrl)
           |
-          +---[ RECOMMENDATIONS ]
+          +---[ METRIC MAP ]
+          |
+          +---[ RECOMMENDATION MAP ]
 ```
