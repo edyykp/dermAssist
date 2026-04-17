@@ -31,11 +31,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ehealth.dermassist.domain.model.User
 import com.ehealth.dermassist.ui.theme.*
 import java.io.File
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
     val dimens = MaterialTheme.dimens
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var tempUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -59,39 +61,52 @@ fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
             },
         )
 
-    Column(
-        modifier =
-            Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = MaterialTheme.dimens.md)
-                .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(dimens.md))
+    LaunchedEffect(Unit) {
+        viewModel.errorEvents.collectLatest { message ->
+            snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Long)
+        }
+    }
 
-        HomeHeader(user = user)
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent, // Allow background to show through
+    ) { padding ->
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(padding)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = MaterialTheme.dimens.md)
+                    .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(dimens.md))
 
-        Spacer(modifier = Modifier.height(dimens.grid25))
+            HomeHeader(user = user)
 
-        HeroScanCard(
-            onTakePhoto = {
-                val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-                val uri =
-                    FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-                tempUri = uri
-                cameraLauncher.launch(uri)
-            },
-            onUploadGallery = { galleryLauncher.launch("image/*") },
-        )
+            Spacer(modifier = Modifier.height(dimens.grid25))
 
-        Spacer(modifier = Modifier.height(dimens.lg))
+            HeroScanCard(
+                onTakePhoto = {
+                    val file =
+                        File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+                    val uri =
+                        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+                    tempUri = uri
+                    cameraLauncher.launch(uri)
+                },
+                onUploadGallery = { galleryLauncher.launch("image/*") },
+            )
 
-        HowItWorksCard()
+            Spacer(modifier = Modifier.height(dimens.lg))
 
-        Spacer(modifier = Modifier.height(dimens.lg))
+            HowItWorksCard()
 
-        DailyTipCard()
+            Spacer(modifier = Modifier.height(dimens.lg))
 
-        Spacer(modifier = Modifier.height(dimens.lg))
+            DailyTipCard()
+
+            Spacer(modifier = Modifier.height(dimens.lg))
+        }
     }
 }
 
