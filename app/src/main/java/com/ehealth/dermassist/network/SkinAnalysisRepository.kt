@@ -74,20 +74,20 @@ class SkinAnalysisRepository @Inject constructor(private val service: SkinAnalys
                     srcFileId = fileId,
                     dstActions =
                         listOf(
-                            "hd_acne",
-                            "hd_droopy_lower_eyelid",
-                            "hd_eye_bag",
-                            "hd_moisture",
-                            "hd_pore",
-                            "hd_redness",
-                            "hd_texture",
-                            "hd_dark_circle",
-                            "hd_droopy_upper_eyelid",
-                            "hd_firmness",
-                            "hd_oiliness",
-                            "hd_radiance",
-                            "hd_wrinkle",
-                            "hd_age_spot",
+                            "acne",
+                            "droopy_lower_eyelid",
+                            "eye_bag",
+                            "moisture",
+                            "pore",
+                            "redness",
+                            "texture",
+                            "dark_circle_v2",
+                            "droopy_upper_eyelid",
+                            "firmness",
+                            "oiliness",
+                            "radiance",
+                            "wrinkle",
+                            "age_spot",
                         ),
                     miniserverArgs = MiniServerArgs(enableMaskOverlay = true),
                 )
@@ -125,7 +125,10 @@ class SkinAnalysisRepository @Inject constructor(private val service: SkinAnalys
                     val data = response.body()?.data
                     when (data?.taskStatus) {
                         "success" -> return Result.success(response.body()!!)
-                        "error" -> return Result.failure(Exception("Analysis failed on server"))
+                        "error" ->
+                            return Result.failure(
+                                Exception("Analysis failed on server: ${data.error}")
+                            )
                     }
                 } else {
                     Log.e(TAG, "Polling response failed: ${response.code()}")

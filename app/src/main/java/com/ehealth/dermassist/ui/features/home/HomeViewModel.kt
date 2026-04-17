@@ -43,7 +43,7 @@ constructor(
     private val MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10MB
     private val SUPPORTED_MIME_TYPES = listOf("image/jpeg", "image/png")
     private val MAX_LONG_SIDE = 4096
-    private val MIN_SHORT_SIDE = 1080
+    private val MIN_SHORT_SIDE = 480
 
     private val _errorEvents = MutableSharedFlow<String>()
     val errorEvents: SharedFlow<String> = _errorEvents.asSharedFlow()
@@ -97,11 +97,23 @@ constructor(
                 // 5. Validate Dimensions
                 val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+
+                if (options.outWidth <= 0 || options.outHeight <= 0) {
+                    _errorEvents.emit("Invalid image data.")
+                    return@launch
+                }
+
                 val longSide = max(options.outWidth, options.outHeight)
                 val shortSide = min(options.outWidth, options.outHeight)
 
+                Log.d(TAG, "Detected dimensions: ${options.outWidth}x${options.outHeight}")
+
                 if (longSide > MAX_LONG_SIDE || shortSide < MIN_SHORT_SIDE) {
-                    _errorEvents.emit("Image dimensions out of range for HD analysis.")
+                    _errorEvents.emit(
+                        "Image quality insufficient for analysis.\n" +
+                            "Required: Long side ≤ 4096px, Short side ≥ 480px.\n" +
+                            "Detected: ${options.outWidth}x${options.outHeight}px"
+                    )
                     return@launch
                 }
 
@@ -147,24 +159,23 @@ constructor(
     ): ScanEntity {
         val results = response.data.results
 
-        // Extract conditions (types starting with hd_)
         val conditions =
-            results
-                ?.output
-                ?.filter { it.type.startsWith("hd_") }
-                ?.map {
-                    ConditionEntity(
-                        label = it.type.removePrefix("hd_").replace("_", " ").capitalize(),
-                        score = it.uiScore ?: it.rawScore?.toInt() ?: 0,
-                        region = it.region ?: "whole",
-                        maskUrl = it.maskUrls?.firstOrNull(),
-                    )
-                } ?: emptyList()
+            results?.output?.map {
+                ConditionEntity(
+                    label = it.type
+                        .replace("_", " ")
+                        .replace(" v2", "")
+                        .capitalize(),
+                    score = it.uiScore ?: it.rawScore?.toInt() ?: it.score?.toInt() ?: 0,
+                    region = it.region ?: "whole",
+                    maskUrl = it.maskUrls?.firstOrNull(),
+                )
+            } ?: emptyList()
 
         return ScanEntity(
             userId = userId,
             createdAt = System.currentTimeMillis(),
-            scanArea = "Face", // Default for HD Skincare API
+            scanArea = "Face", // Default for SD Skincare API
             overallScore = response.getOverallScore()?.toInt() ?: 0,
             skinAge = response.getSkinAge(),
             skinType = results?.skinType?.typeName ?: "Unknown",

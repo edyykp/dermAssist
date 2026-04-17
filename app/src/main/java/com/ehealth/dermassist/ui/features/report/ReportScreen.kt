@@ -338,7 +338,7 @@ private fun SkinMetricRow(metric: SkinMetric) {
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "${metric.value}%",
+                text = "${metric.value}/100",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = metric.color,

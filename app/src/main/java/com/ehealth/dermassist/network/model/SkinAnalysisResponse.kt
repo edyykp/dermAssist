@@ -14,8 +14,9 @@ data class SkinAnalysisResponse(
 @JsonClass(generateAdapter = true)
 data class AnalysisData(
     @Json(name = "task_id") val taskId: String? = null,
-    @Json(name = "task_status") val taskStatus: String,
+    @Json(name = "task_status") val taskStatus: String? = null,
     @Json(name = "results") val results: AnalysisResults? = null,
+    @Json(name = "error") val error: String? = null,
 )
 
 /** Container for the list of analysis output items and top-level summaries. */

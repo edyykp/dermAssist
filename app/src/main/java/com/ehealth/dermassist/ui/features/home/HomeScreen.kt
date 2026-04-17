@@ -67,15 +67,11 @@ fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent, // Allow background to show through
-    ) { padding ->
+    // Root container with background color to eliminate white padding gaps
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         Column(
             modifier =
                 Modifier.fillMaxSize()
-                    .padding(padding)
-                    .background(MaterialTheme.colorScheme.surface)
                     .padding(horizontal = MaterialTheme.dimens.md)
                     .verticalScroll(rememberScrollState())
         ) {
@@ -107,6 +103,12 @@ fun HomeScreen(user: User? = null, viewModel: HomeViewModel = hiltViewModel()) {
 
             Spacer(modifier = Modifier.height(dimens.lg))
         }
+
+        // Host snackbar directly in the Box to avoid nested Scaffold padding issues
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = dimens.md),
+        )
     }
 }
 
